@@ -1,0 +1,22 @@
+@"
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Java
+backend/target/
+backend/*.class
+
+# Ambiente
+.env
+.env.local
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+"@ | Out-File -FilePath ".gitignore" -Encoding ascii

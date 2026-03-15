@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grimoire-frontend
+  namespace: grimoire
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grimoire-frontend
+  template:
+    metadata:
+      labels:
+        app: grimoire-frontend
+    spec:
+      containers:
+        - name: grimoire-frontend
+          image: SEU_USUARIO/grimoire-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grimoire-frontend
+  namespace: grimoire
+spec:
+  selector:
+    app: grimoire-frontend
+  ports:
+    - port: 80
