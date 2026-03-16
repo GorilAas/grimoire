@@ -1,10 +1,10 @@
 spring:
   application:
-    name: backend
+    name: grimoire
 
   datasource:
     url: jdbc:postgresql://localhost:5432/grimoiredb
-    username: pgrimoireo
+    username: grimoire
     password: grimoire123
 
   jpa:
@@ -36,4 +36,8 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    url: ${SPRING_DATASOURCE_URL}
+    user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
