@@ -21,8 +21,9 @@ public class FlywayConfig {
 
     @Bean(initMethod = "migrate")
     public Flyway flyway() {
+        String jdbcUrl = url + "&user=" + username + "&password=" + password;
         return Flyway.configure()
-                .dataSource(url, username, password)
+                .dataSource(jdbcUrl, null, null)
                 .locations("classpath:db/migration")
                 .load();
     }
