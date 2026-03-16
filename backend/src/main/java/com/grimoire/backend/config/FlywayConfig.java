@@ -22,7 +22,7 @@ public class FlywayConfig {
     @Bean(initMethod = "migrate")
     public Flyway flyway() {
         return Flyway.configure()
-                .dataSource(url, username, password)
+                .dataSource(url, null, null)
                 .locations("classpath:db/migration")
                 .load();
     }
