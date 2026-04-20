@@ -1,4 +1,9 @@
 package com.grimoire.backend.shared.enums;
 
-public class FormaPagamento {
+public enum FormaPagamento {
+    DEBITO,
+    CREDITO,
+    DINHEIRO,
+    PIX,
+    FIADO
 }

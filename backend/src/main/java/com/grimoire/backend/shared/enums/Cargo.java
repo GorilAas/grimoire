@@ -1,4 +1,7 @@
 package com.grimoire.backend.shared.enums;
 
-public class Cargo {
+public enum  Cargo {
+    PADEIRO,
+    ATENDENTE,
+    GERENTE
 }
