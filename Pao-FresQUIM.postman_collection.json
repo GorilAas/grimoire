@@ -1,0 +1,504 @@
+{
+  "info": {
+    "name": "Pão FresQUIM — API",
+    "description": "Collection completa do backend Pão FresQUIM (Spring Boot + Supabase). Base URL: http://localhost:8080",
+    "_postman_id": "paofresquim-2026",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Produtos",
+      "item": [
+        {
+          "name": "Criar produto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/produtos", "host": ["{{baseUrl}}"], "path": ["api", "produtos"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pao Frances\",\n  \"descricao\": \"Pao crocante tradicional\",\n  \"precoUnitario\": 0.75,\n  \"codigoBarras\": \"7891234560001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar ativos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/produtos", "host": ["{{baseUrl}}"], "path": ["api", "produtos"] }
+          }
+        },
+        {
+          "name": "Listar todos (incl. inativos)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/produtos/todos", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "todos"] }
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/produtos/1", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "1"] }
+          }
+        },
+        {
+          "name": "Buscar por código de barras",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/produtos/codigo/7891234560001", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "codigo", "7891234560001"] }
+          }
+        },
+        {
+          "name": "Atualizar produto",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/produtos/1", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pao Frances Premium\",\n  \"descricao\": \"Pao crocante com gergelim\",\n  \"precoUnitario\": 0.90,\n  \"codigoBarras\": \"7891234560001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Inativar produto (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/produtos/3", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "3"] }
+          }
+        },
+        {
+          "name": "Reativar produto",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/produtos/3/reativar", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "3", "reativar"] }
+          }
+        },
+        {
+          "name": "[422] Código de barras duplicado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/produtos", "host": ["{{baseUrl}}"], "path": ["api", "produtos"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Produto Clone\",\n  \"precoUnitario\": 1.00,\n  \"codigoBarras\": \"7891234560001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "[400] Nome obrigatório",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/produtos", "host": ["{{baseUrl}}"], "path": ["api", "produtos"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precoUnitario\": 5.00\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Funcionários",
+      "item": [
+        {
+          "name": "Criar funcionário",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/funcionarios", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Carlos Silva\",\n  \"cargo\": \"GERENTE\",\n  \"telefone\": \"11999990001\",\n  \"dataAdmissao\": \"2023-01-15\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar ativos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios"] }
+          }
+        },
+        {
+          "name": "Listar todos (incl. inativos)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/todos", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "todos"] }
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/1", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "1"] }
+          }
+        },
+        {
+          "name": "Filtrar por cargo — PADEIRO",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/cargo/PADEIRO", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "cargo", "PADEIRO"] }
+          }
+        },
+        {
+          "name": "Filtrar por cargo — ATENDENTE",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/cargo/ATENDENTE", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "cargo", "ATENDENTE"] }
+          }
+        },
+        {
+          "name": "Filtrar por cargo — GERENTE",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/cargo/GERENTE", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "cargo", "GERENTE"] }
+          }
+        },
+        {
+          "name": "Atualizar funcionário",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/1", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Carlos Silva Jr.\",\n  \"cargo\": \"GERENTE\",\n  \"telefone\": \"11999990001\",\n  \"endereco\": \"Rua das Flores, 100\",\n  \"dataAdmissao\": \"2023-01-15\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Inativar funcionário",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/3", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "3"] }
+          }
+        },
+        {
+          "name": "[400] Cargo inválido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/funcionarios", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Teste\",\n  \"cargo\": \"DIRETOR\",\n  \"dataAdmissao\": \"2025-01-01\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Criar cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Oliveira\",\n  \"cpf\": \"123.456.789-01\",\n  \"telefone\": \"11999990010\",\n  \"email\": \"maria@email.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar ativos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] }
+          }
+        },
+        {
+          "name": "Listar todos (incl. inativos)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/clientes/todos", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "todos"] }
+          }
+        },
+        {
+          "name": "Clientes com fiado em aberto",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/clientes/fiado", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "fiado"] }
+          }
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/clientes/1", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1"] }
+          }
+        },
+        {
+          "name": "Buscar por CPF",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/clientes/cpf/123.456.789-01", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "cpf", "123.456.789-01"] }
+          }
+        },
+        {
+          "name": "Atualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/clientes/1", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Oliveira Santos\",\n  \"cpf\": \"123.456.789-01\",\n  \"telefone\": \"11999990010\",\n  \"email\": \"maria.santos@email.com\",\n  \"endereco\": \"Rua das Rosas, 50\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Corrigir CPF",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/clientes/1/cpf", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1", "cpf"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpf\": \"111.222.333-44\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Inativar cliente",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/clientes/1", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1"] }
+          }
+        },
+        {
+          "name": "Reativar cliente",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/clientes/1/reativar", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1", "reativar"] }
+          }
+        },
+        {
+          "name": "[400] CPF formato inválido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Teste\",\n  \"cpf\": \"12345678901\"\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] CPF duplicado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clone\",\n  \"cpf\": \"123.456.789-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] Inativar com saldo devedor",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/clientes/2", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "2"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendas",
+      "item": [
+        {
+          "name": "Registrar venda — DINHEIRO",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 2,\n  \"formaPagamento\": \"DINHEIRO\",\n  \"itens\": [\n    { \"produtoId\": 1, \"quantidade\": 10 },\n    { \"produtoId\": 2, \"quantidade\": 1 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar venda — PIX",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 2,\n  \"formaPagamento\": \"PIX\",\n  \"itens\": [\n    { \"produtoId\": 2, \"quantidade\": 2 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar venda — FIADO (com cliente)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 1,\n  \"clienteId\": 1,\n  \"formaPagamento\": \"FIADO\",\n  \"itens\": [\n    { \"produtoId\": 1, \"quantidade\": 5 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar todas as vendas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] }
+          }
+        },
+        {
+          "name": "Buscar venda por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/1", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "1"] }
+          }
+        },
+        {
+          "name": "Vendas por cliente",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/cliente/1", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "cliente", "1"] }
+          }
+        },
+        {
+          "name": "Vendas por funcionário",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/funcionario/1", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "funcionario", "1"] }
+          }
+        },
+        {
+          "name": "Vendas por forma — DINHEIRO",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/forma/DINHEIRO", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "forma", "DINHEIRO"] }
+          }
+        },
+        {
+          "name": "Vendas por forma — PIX",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/forma/PIX", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "forma", "PIX"] }
+          }
+        },
+        {
+          "name": "Vendas por forma — FIADO",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/forma/FIADO", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "forma", "FIADO"] }
+          }
+        },
+        {
+          "name": "Vendas por período",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vendas/periodo?dataInicio=2026-01-01&dataFim=2026-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vendas", "periodo"],
+              "query": [
+                { "key": "dataInicio", "value": "2026-01-01" },
+                { "key": "dataFim", "value": "2026-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fiados em aberto",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/fiado/aberto", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "fiado", "aberto"] }
+          }
+        },
+        {
+          "name": "Marcar fiado como pago",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/vendas/2/pagar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "2", "pagar"] }
+          }
+        },
+        {
+          "name": "[422] FIADO sem clienteId — RN01",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 1,\n  \"formaPagamento\": \"FIADO\",\n  \"itens\": [\n    { \"produtoId\": 1, \"quantidade\": 1 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] FIADO com cliente negativado — RN02/RN03",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 1,\n  \"clienteId\": 2,\n  \"formaPagamento\": \"FIADO\",\n  \"itens\": [\n    { \"produtoId\": 1, \"quantidade\": 1 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] Produto inativo na venda",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 1,\n  \"formaPagamento\": \"DINHEIRO\",\n  \"itens\": [\n    { \"produtoId\": 3, \"quantidade\": 1 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] Pagar venda à vista (não é fiado)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/vendas/1/pagar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "1", "pagar"] }
+          }
+        },
+        {
+          "name": "[404] Venda inexistente",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/vendas/999", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "999"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
+          }
+        }
+      ]
+    }
+  ]
+}
