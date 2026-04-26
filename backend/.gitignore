@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Credenciais — NUNCA commitar ###
+src/main/resources/application-local.yaml
+src/main/resources/application-local.properties
+.env
+.env.local
+*.secret.yaml
+*.secret.properties

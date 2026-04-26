@@ -60,4 +60,10 @@ public class ProdutoController {
         service.inativar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/reativar")
+    public ProdutoResponse reativar(@PathVariable Long id) {
+        service.reativar(id);
+        return ProdutoResponse.from(service.buscarPorId(id));
+    }
 }

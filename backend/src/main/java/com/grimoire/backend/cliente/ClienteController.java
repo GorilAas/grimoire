@@ -2,6 +2,7 @@ package com.grimoire.backend.cliente;
 
 import com.grimoire.backend.cliente.dto.ClienteRequest;
 import com.grimoire.backend.cliente.dto.ClienteResponse;
+import com.grimoire.backend.cliente.dto.CpfRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,13 +65,19 @@ public class ClienteController {
 
     @PatchMapping("/{id}/cpf")
     public ClienteResponse corrigirCpf(@PathVariable Long id,
-                                       @RequestBody String novoCpf) {
-        return ClienteResponse.from(service.corrigirCpf(id, novoCpf));
+                                       @Valid @RequestBody CpfRequest dto) {
+        return ClienteResponse.from(service.corrigirCpf(id, dto.cpf()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(@PathVariable Long id) {
         service.inativar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/reativar")
+    public ClienteResponse reativar(@PathVariable Long id) {
+        service.reativar(id);
+        return ClienteResponse.from(service.buscarPorId(id));
     }
 }

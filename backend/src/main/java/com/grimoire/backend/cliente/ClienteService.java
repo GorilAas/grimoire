@@ -114,11 +114,22 @@ public class ClienteService {
 
     public void inativar(Long id) {
         Cliente cliente = buscarPorId(id);
+        if (Boolean.FALSE.equals(cliente.getAtivo())) {
+            throw new RegraNegocioException("Cliente já está inativo");
+        }
         if (cliente.getSaldoDevedor().compareTo(BigDecimal.ZERO) > 0) {
             throw new RegraNegocioException(
                     "Cliente possui saldo devedor em aberto — quite o fiado antes de inativar"
             );
         }
         cliente.setAtivo(false);
+    }
+
+    public void reativar(Long id) {
+        Cliente cliente = buscarPorId(id);
+        if (Boolean.TRUE.equals(cliente.getAtivo())) {
+            throw new RegraNegocioException("Cliente já está ativo");
+        }
+        cliente.setAtivo(true);
     }
 }

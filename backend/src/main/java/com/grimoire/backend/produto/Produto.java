@@ -28,6 +28,7 @@ public class Produto {
     @Column(name = "codigo_barras", unique = true, length = 50)
     private String codigoBarras;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean ativo = true;
 

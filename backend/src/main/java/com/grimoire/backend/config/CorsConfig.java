@@ -23,7 +23,10 @@ public class CorsConfig {
             frontendUrl
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of(
+            "Content-Type", "Authorization", "Accept", "Origin",
+            "X-Requested-With", "Access-Control-Request-Method", "Access-Control-Request-Headers"
+        ));
         config.setAllowCredentials(true);
 
         var source = new UrlBasedCorsConfigurationSource();

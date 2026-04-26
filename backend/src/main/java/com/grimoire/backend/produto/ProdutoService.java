@@ -73,6 +73,17 @@ public class ProdutoService {
 
     public void inativar(Long id) {
         Produto produto = buscarPorId(id);
+        if (!produto.isAtivo()) {
+            throw new RegraNegocioException("Produto já está inativo");
+        }
         produto.setAtivo(false);
+    }
+
+    public void reativar(Long id) {
+        Produto produto = buscarPorId(id);
+        if (produto.isAtivo()) {
+            throw new RegraNegocioException("Produto já está ativo");
+        }
+        produto.setAtivo(true);
     }
 }

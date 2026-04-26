@@ -33,15 +33,18 @@ public class Cliente {
     @Column(columnDefinition = "TEXT")
     private String endereco;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean negativado = false;
 
     @Column(name = "data_consulta_serasa")
     private LocalDateTime dataConsultaSerasa;
 
+    @Builder.Default
     @Column(name = "saldo_devedor", nullable = false, precision = 10, scale = 2)
     private BigDecimal saldoDevedor = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean ativo = true;
 
