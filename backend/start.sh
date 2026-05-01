@@ -1,6 +1,16 @@
 #!/bin/bash
 
-JAVA_HOME="C:/Program Files/Eclipse Adoptium/jdk-21.0.7.6-hotspot"
+# ──────────────────────────────────────────────────────────────
+#  JAVA_HOME — deixe vazio para usar o Java do sistema,
+#  ou defina o caminho completo da sua instalacao Java 17+
+#
+#  Exemplos:
+#    JAVA_HOME="C:/Program Files/Eclipse Adoptium/jdk-21.0.7.6-hotspot"
+#    JAVA_HOME="C:/Program Files/Java/zulu17.50.19-ca-jdk17.0.11-win_x64"
+#    JAVA_HOME="C:/Program Files/Java/jdk-24"
+# ──────────────────────────────────────────────────────────────
+JAVA_HOME_OVERRIDE=""
+
 PORT=8080
 
 echo ""
@@ -9,14 +19,40 @@ echo "  Pao FresQUIM -- Backend"
 echo "=================================="
 echo ""
 
-# -- Verifica se o Java 21 existe --
-if [ ! -f "$JAVA_HOME/bin/java.exe" ]; then
-  echo "[ERRO] Java 21 nao encontrado em: $JAVA_HOME"
-  echo "       Ajuste a variavel JAVA_HOME no inicio deste script."
+# -- Resolve JAVA_HOME --
+if [ -n "$JAVA_HOME_OVERRIDE" ]; then
+  JAVA_HOME="$JAVA_HOME_OVERRIDE"
+fi
+
+# Tenta encontrar o Java (override, variavel de ambiente, ou PATH)
+if [ -n "$JAVA_HOME" ] && [ -f "$JAVA_HOME/bin/java.exe" ]; then
+  JAVA_BIN="$JAVA_HOME/bin/java"
+elif command -v java &>/dev/null; then
+  JAVA_BIN="java"
+  JAVA_HOME=""
+else
+  echo "[ERRO] Java nao encontrado."
+  echo ""
+  echo "       Opcoes:"
+  echo "       1. Instale o Java 17+ e adicione ao PATH"
+  echo "       2. Defina JAVA_HOME_OVERRIDE no inicio deste script"
+  echo ""
   exit 1
 fi
 
-echo "[1/3] Java: $($JAVA_HOME/bin/java -version 2>&1 | head -1)"
+# -- Verifica versao minima (Java 17) --
+JAVA_VERSION=$("$JAVA_BIN" -version 2>&1 | head -1)
+JAVA_MAJOR=$(echo "$JAVA_VERSION" | grep -oP '(?<=version ")[^"]+' | cut -d'.' -f1)
+
+echo "[1/3] Java: $JAVA_VERSION"
+
+if [ -n "$JAVA_MAJOR" ] && [ "$JAVA_MAJOR" -lt 17 ] 2>/dev/null; then
+  echo ""
+  echo "[ERRO] Java $JAVA_MAJOR detectado. Este projeto requer Java 17 ou superior."
+  echo "       Defina JAVA_HOME_OVERRIDE no inicio deste script."
+  echo ""
+  exit 1
+fi
 
 # -- Libera a porta se estiver ocupada --
 PID=$(netstat -ano 2>/dev/null | grep ":$PORT.*LISTENING" | awk '{print $5}' | head -1)
