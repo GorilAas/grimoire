@@ -42,7 +42,7 @@ fi
 
 # -- Verifica versao minima (Java 17) --
 JAVA_VERSION=$("$JAVA_BIN" -version 2>&1 | head -1)
-JAVA_MAJOR=$(echo "$JAVA_VERSION" | grep -oP '(?<=version ")[^"]+' | cut -d'.' -f1)
+JAVA_MAJOR=$(echo "$JAVA_VERSION" | grep -o '"[^"]*"' | tr -d '"' | cut -d'.' -f1)
 
 echo "[1/3] Java: $JAVA_VERSION"
 
