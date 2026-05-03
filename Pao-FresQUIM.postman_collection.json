@@ -1,20 +1,124 @@
 {
   "info": {
     "name": "Pão FresQUIM — API",
-    "description": "Collection completa do backend Pão FresQUIM (Spring Boot + Supabase). Base URL: http://localhost:8080",
-    "_postman_id": "paofresquim-2026",
+    "description": "Collection completa do backend Pão FresQUIM (Spring Boot + Supabase/PostgreSQL).\n\nBase URL: http://localhost:8080\n\nAutenticação: após fazer login, copie o `token` retornado e cole na variável de coleção `token`. Todas as requests usam `Bearer {{token}}` automaticamente.",
+    "_postman_id": "paofresquim-2026-v2",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080",
-      "type": "string"
-    }
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "token",   "value": "",                      "type": "string" }
   ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
   "item": [
+
+    {
+      "name": "Auth",
+      "description": "Autenticação JWT. Rota pública — não exige Bearer token.",
+      "item": [
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "var json = pm.response.json();",
+                "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin@paofresquim.com\",\n  \"senha\": \"Padaria@123\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[401] Credenciais inválidas",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"naoexiste@email.com\",\n  \"senha\": \"senhaerrada\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Categorias",
+      "description": "CRUD de categorias de produtos. GET: todos os perfis. Mutações: ADMIN / GERENTE.",
+      "item": [
+        {
+          "name": "Listar categorias",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/categorias", "host": ["{{baseUrl}}"], "path": ["api", "categorias"] }
+          }
+        },
+        {
+          "name": "Criar categoria",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/categorias", "host": ["{{baseUrl}}"], "path": ["api", "categorias"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pães Doces\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Atualizar categoria",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/categorias/1", "host": ["{{baseUrl}}"], "path": ["api", "categorias", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pães Doces Artesanais\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Excluir categoria",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/categorias/1", "host": ["{{baseUrl}}"], "path": ["api", "categorias", "1"] }
+          }
+        },
+        {
+          "name": "[400] Nome vazio",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/categorias", "host": ["{{baseUrl}}"], "path": ["api", "categorias"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
     {
       "name": "Produtos",
+      "description": "CRUD completo de produtos com estoque, categorias e filtros. Todos os perfis têm acesso de leitura; mutações exigem ADMIN ou GERENTE.",
       "item": [
         {
           "name": "Criar produto",
@@ -24,7 +128,7 @@
             "url": { "raw": "{{baseUrl}}/api/produtos", "host": ["{{baseUrl}}"], "path": ["api", "produtos"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Pao Frances\",\n  \"descricao\": \"Pao crocante tradicional\",\n  \"precoUnitario\": 0.75,\n  \"codigoBarras\": \"7891234560001\"\n}"
+              "raw": "{\n  \"nome\": \"Pao Frances\",\n  \"descricao\": \"Pao crocante tradicional\",\n  \"precoUnitario\": 0.75,\n  \"precoCusto\": 0.30,\n  \"codigoBarras\": \"7891234560001\",\n  \"categoriaId\": 1,\n  \"quantidadeEstoque\": 100,\n  \"estoqueMinimo\": 20\n}"
             }
           }
         },
@@ -57,6 +161,32 @@
           }
         },
         {
+          "name": "Buscar por nome (termo)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/produtos/busca?termo=pao",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "produtos", "busca"],
+              "query": [{ "key": "termo", "value": "pao" }]
+            }
+          }
+        },
+        {
+          "name": "Abaixo do estoque mínimo",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/produtos/abaixo-minimo", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "abaixo-minimo"] }
+          }
+        },
+        {
+          "name": "Listar por categoria",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/produtos/categoria/1", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "categoria", "1"] }
+          }
+        },
+        {
           "name": "Atualizar produto",
           "request": {
             "method": "PUT",
@@ -64,7 +194,7 @@
             "url": { "raw": "{{baseUrl}}/api/produtos/1", "host": ["{{baseUrl}}"], "path": ["api", "produtos", "1"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Pao Frances Premium\",\n  \"descricao\": \"Pao crocante com gergelim\",\n  \"precoUnitario\": 0.90,\n  \"codigoBarras\": \"7891234560001\"\n}"
+              "raw": "{\n  \"nome\": \"Pao Frances Premium\",\n  \"descricao\": \"Pao crocante com gergelim\",\n  \"precoUnitario\": 0.90,\n  \"precoCusto\": 0.35,\n  \"codigoBarras\": \"7891234560001\",\n  \"categoriaId\": 1,\n  \"quantidadeEstoque\": 100,\n  \"estoqueMinimo\": 20\n}"
             }
           }
         },
@@ -108,8 +238,24 @@
         }
       ]
     },
+
+    {
+      "name": "Estoque",
+      "description": "Histórico de movimentações de estoque por produto. Acesso: ADMIN / GERENTE.",
+      "item": [
+        {
+          "name": "Movimentações por produto",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/estoque/produto/1", "host": ["{{baseUrl}}"], "path": ["api", "estoque", "produto", "1"] }
+          }
+        }
+      ]
+    },
+
     {
       "name": "Funcionários",
+      "description": "CRUD de funcionários e gestão de acesso (usuário/login). Acesso: ADMIN / GERENTE. Criar e revogar acesso: apenas ADMIN.",
       "item": [
         {
           "name": "Criar funcionário",
@@ -119,7 +265,7 @@
             "url": { "raw": "{{baseUrl}}/api/funcionarios", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Carlos Silva\",\n  \"cargo\": \"GERENTE\",\n  \"telefone\": \"11999990001\",\n  \"dataAdmissao\": \"2023-01-15\"\n}"
+              "raw": "{\n  \"nome\": \"Carlos Silva\",\n  \"cargo\": \"GERENTE\",\n  \"telefone\": \"(11) 99999-0001\",\n  \"dataAdmissao\": \"2023-01-15\",\n  \"dataNascimento\": \"1990-05-20\",\n  \"cargaHorariaDiaria\": 8\n}"
             }
           }
         },
@@ -173,7 +319,7 @@
             "url": { "raw": "{{baseUrl}}/api/funcionarios/1", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "1"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Carlos Silva Jr.\",\n  \"cargo\": \"GERENTE\",\n  \"telefone\": \"11999990001\",\n  \"endereco\": \"Rua das Flores, 100\",\n  \"dataAdmissao\": \"2023-01-15\"\n}"
+              "raw": "{\n  \"nome\": \"Carlos Silva Jr.\",\n  \"cargo\": \"GERENTE\",\n  \"telefone\": \"(11) 99999-0001\",\n  \"endereco\": \"Rua das Flores, 100\",\n  \"dataAdmissao\": \"2023-01-15\",\n  \"dataNascimento\": \"1990-05-20\",\n  \"cargaHorariaDiaria\": 8\n}"
             }
           }
         },
@@ -182,6 +328,25 @@
           "request": {
             "method": "DELETE",
             "url": { "raw": "{{baseUrl}}/api/funcionarios/3", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "3"] }
+          }
+        },
+        {
+          "name": "Criar acesso (login) — ADMIN only",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/1/acesso", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "1", "acesso"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos@paofresquim.com\",\n  \"senha\": \"Padaria@123\",\n  \"perfil\": \"GERENTE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Revogar acesso — ADMIN only",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/funcionarios/1/acesso", "host": ["{{baseUrl}}"], "path": ["api", "funcionarios", "1", "acesso"] }
           }
         },
         {
@@ -198,8 +363,10 @@
         }
       ]
     },
+
     {
       "name": "Clientes",
+      "description": "CRUD de clientes com suporte a fiado. Acesso: ADMIN / GERENTE / ATENDENTE.",
       "item": [
         {
           "name": "Criar cliente",
@@ -209,7 +376,7 @@
             "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Maria Oliveira\",\n  \"cpf\": \"123.456.789-01\",\n  \"telefone\": \"11999990010\",\n  \"email\": \"maria@email.com\"\n}"
+              "raw": "{\n  \"nome\": \"Maria Oliveira\",\n  \"cpf\": \"123.456.789-01\",\n  \"telefone\": \"(11) 99999-0010\",\n  \"email\": \"maria@email.com\"\n}"
             }
           }
         },
@@ -256,7 +423,7 @@
             "url": { "raw": "{{baseUrl}}/api/clientes/1", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Maria Oliveira Santos\",\n  \"cpf\": \"123.456.789-01\",\n  \"telefone\": \"11999990010\",\n  \"email\": \"maria.santos@email.com\",\n  \"endereco\": \"Rua das Rosas, 50\"\n}"
+              "raw": "{\n  \"nome\": \"Maria Oliveira Santos\",\n  \"cpf\": \"123.456.789-01\",\n  \"telefone\": \"(11) 99999-0010\",\n  \"email\": \"maria.santos@email.com\",\n  \"endereco\": \"Rua das Rosas, 50\"\n}"
             }
           }
         },
@@ -319,8 +486,10 @@
         }
       ]
     },
+
     {
       "name": "Vendas",
+      "description": "Registro e consulta de vendas. Atendentes podem registrar; cancelamento exige ADMIN ou GERENTE. O funcionário responsável pelo cancelamento é resolvido automaticamente via JWT.",
       "item": [
         {
           "name": "Registrar venda — DINHEIRO",
@@ -343,6 +512,30 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"funcionarioId\": 2,\n  \"formaPagamento\": \"PIX\",\n  \"itens\": [\n    { \"produtoId\": 2, \"quantidade\": 2 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar venda — DEBITO",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 2,\n  \"formaPagamento\": \"DEBITO\",\n  \"itens\": [\n    { \"produtoId\": 3, \"quantidade\": 1 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar venda — CREDITO",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas", "host": ["{{baseUrl}}"], "path": ["api", "vendas"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 2,\n  \"formaPagamento\": \"CREDITO\",\n  \"itens\": [\n    { \"produtoId\": 3, \"quantidade\": 2 }\n  ]\n}"
             }
           }
         },
@@ -417,7 +610,7 @@
               "path": ["api", "vendas", "periodo"],
               "query": [
                 { "key": "dataInicio", "value": "2026-01-01" },
-                { "key": "dataFim", "value": "2026-12-31" }
+                { "key": "dataFim",    "value": "2026-12-31" }
               ]
             }
           }
@@ -434,6 +627,25 @@
           "request": {
             "method": "PATCH",
             "url": { "raw": "{{baseUrl}}/api/vendas/2/pagar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "2", "pagar"] }
+          }
+        },
+        {
+          "name": "Cancelar venda — ADMIN/GERENTE",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendas/5/cancelar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "5", "cancelar"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Produto devolvido pelo cliente\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancelar venda (sem motivo)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/vendas/5/cancelar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "5", "cancelar"] }
           }
         },
         {
@@ -473,10 +685,17 @@
           }
         },
         {
-          "name": "[422] Pagar venda à vista (não é fiado)",
+          "name": "[422] Pagar venda que não é fiado",
           "request": {
             "method": "PATCH",
             "url": { "raw": "{{baseUrl}}/api/vendas/1/pagar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "1", "pagar"] }
+          }
+        },
+        {
+          "name": "[403] Cancelar sem permissão (ATENDENTE)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/vendas/1/cancelar", "host": ["{{baseUrl}}"], "path": ["api", "vendas", "1", "cancelar"] }
           }
         },
         {
@@ -488,17 +707,176 @@
         }
       ]
     },
+
+    {
+      "name": "Caixa",
+      "description": "Controle de abertura e fechamento do caixa diário. Acesso: ADMIN / GERENTE. Apenas um caixa pode estar ABERTO por vez.",
+      "item": [
+        {
+          "name": "Listar todos os caixas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/caixa", "host": ["{{baseUrl}}"], "path": ["api", "caixa"] }
+          }
+        },
+        {
+          "name": "Buscar caixa aberto",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/caixa/aberto", "host": ["{{baseUrl}}"], "path": ["api", "caixa", "aberto"] }
+          }
+        },
+        {
+          "name": "Buscar caixa por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/caixa/1", "host": ["{{baseUrl}}"], "path": ["api", "caixa", "1"] }
+          }
+        },
+        {
+          "name": "Abrir caixa",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/caixa/abrir", "host": ["{{baseUrl}}"], "path": ["api", "caixa", "abrir"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 1,\n  \"valorAbertura\": 150.00,\n  \"observacoes\": \"Troco inicial do dia\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Fechar caixa",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/caixa/fechar", "host": ["{{baseUrl}}"], "path": ["api", "caixa", "fechar"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valorFechamento\": 2345.50,\n  \"observacoes\": \"Fechamento normal\"\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] Abrir caixa já aberto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/caixa/abrir", "host": ["{{baseUrl}}"], "path": ["api", "caixa", "abrir"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 1,\n  \"valorAbertura\": 100.00\n}"
+            }
+          }
+        },
+        {
+          "name": "[422] Fechar sem caixa aberto",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/caixa/fechar", "host": ["{{baseUrl}}"], "path": ["api", "caixa", "fechar"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valorFechamento\": 500.00\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Ponto",
+      "description": "Controle de ponto eletrônico. Bater ponto: todos os perfis autenticados. Ajuste manual e listagem por período: ADMIN / GERENTE.",
+      "item": [
+        {
+          "name": "Bater ponto (próprio)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/ponto/bater", "host": ["{{baseUrl}}"], "path": ["api", "ponto", "bater"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Bater ponto (por funcionário — ADMIN/GERENTE)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/ponto/bater", "host": ["{{baseUrl}}"], "path": ["api", "ponto", "bater"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Registros de hoje — por funcionário",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/ponto/hoje/1", "host": ["{{baseUrl}}"], "path": ["api", "ponto", "hoje", "1"] }
+          }
+        },
+        {
+          "name": "Resumo da semana — por funcionário",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ponto/resumo/1?inicio=2026-04-28&fim=2026-05-04",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ponto", "resumo", "1"],
+              "query": [
+                { "key": "inicio", "value": "2026-04-28" },
+                { "key": "fim",    "value": "2026-05-04" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Todos os registros por período — ADMIN/GERENTE",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ponto/periodo?inicio=2026-04-01&fim=2026-04-30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ponto", "periodo"],
+              "query": [
+                { "key": "inicio", "value": "2026-04-01" },
+                { "key": "fim",    "value": "2026-04-30" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ajuste manual de ponto — ADMIN/GERENTE",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/ponto/ajuste", "host": ["{{baseUrl}}"], "path": ["api", "ponto", "ajuste"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionarioId\": 2,\n  \"momento\": \"2026-05-01T08:00:00\",\n  \"tipo\": \"ENTRADA\",\n  \"observacao\": \"Esqueceu de bater na entrada\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
     {
       "name": "Health",
       "item": [
         {
           "name": "Health check",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
           }
         }
       ]
     }
+
   ]
 }
