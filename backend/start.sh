@@ -9,7 +9,7 @@
 #    JAVA_HOME="C:/Program Files/Java/zulu17.50.19-ca-jdk17.0.11-win_x64"
 #    JAVA_HOME="C:/Program Files/Java/jdk-24"
 # ──────────────────────────────────────────────────────────────
-JAVA_HOME_OVERRIDE=""
+JAVA_HOME_OVERRIDE="C:/Program Files/Eclipse Adoptium/jdk-21.0.7.6-hotspot"
 
 PORT=8080
 
@@ -42,7 +42,11 @@ fi
 
 # -- Verifica versao minima (Java 17) --
 JAVA_VERSION=$("$JAVA_BIN" -version 2>&1 | head -1)
-JAVA_MAJOR=$(echo "$JAVA_VERSION" | grep -o '"[^"]*"' | tr -d '"' | cut -d'.' -f1)
+# Suporta formato antigo (1.8.x) e novo (17.x, 21.x)
+_RAW=$(echo "$JAVA_VERSION" | grep -o '"[^"]*"' | tr -d '"')
+_FIRST=$(echo "$_RAW" | cut -d'.' -f1)
+_SECOND=$(echo "$_RAW" | cut -d'.' -f2)
+if [ "$_FIRST" = "1" ]; then JAVA_MAJOR="$_SECOND"; else JAVA_MAJOR="$_FIRST"; fi
 
 echo "[1/3] Java: $JAVA_VERSION"
 

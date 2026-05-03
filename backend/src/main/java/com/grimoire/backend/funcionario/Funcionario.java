@@ -1,8 +1,10 @@
 package com.grimoire.backend.funcionario;
 
 import com.grimoire.backend.shared.enums.Cargo;
+import com.grimoire.backend.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -37,6 +39,17 @@ public class Funcionario {
 
     @Column(name = "data_admissao", nullable = false)
     private LocalDate dataAdmissao;
+
+    @Column(name = "data_nascimento")
+    private LocalDate dataNascimento;
+
+    @Builder.Default
+    @Column(name = "carga_horaria_diaria", nullable = false, precision = 4, scale = 2)
+    private BigDecimal cargaHorariaDiaria = BigDecimal.valueOf(8);
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
 
     @Builder.Default
     @Column(nullable = false)

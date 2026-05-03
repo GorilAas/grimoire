@@ -17,6 +17,9 @@ public record VendaResponse(
     BigDecimal valorTotal,
     FormaPagamento formaPagamento,
     StatusFiado statusFiado,
+    String status,
+    String motivoCancelamento,
+    LocalDateTime canceladoEm,
     LocalDateTime dataVenda,
     Boolean notaFiscalEmitida,
     List<ItemVendaResponse> itens
@@ -31,12 +34,8 @@ public record VendaResponse(
     ) {
         public static ItemVendaResponse from(ItemVenda i) {
             return new ItemVendaResponse(
-                i.getId(),
-                i.getProduto().getId(),
-                i.getProduto().getNome(),
-                i.getQuantidade(),
-                i.getPrecoUnitario(),
-                i.getSubtotal()
+                i.getId(), i.getProduto().getId(), i.getProduto().getNome(),
+                i.getQuantidade(), i.getPrecoUnitario(), i.getSubtotal()
             );
         }
     }
@@ -51,6 +50,9 @@ public record VendaResponse(
             v.getValorTotal(),
             v.getFormaPagamento(),
             v.getStatusFiado(),
+            v.getStatus(),
+            v.getMotivoCancelamento(),
+            v.getCanceladoEm(),
             v.getDataVenda(),
             v.getNotaFiscalEmitida(),
             v.getItens().stream().map(ItemVendaResponse::from).toList()

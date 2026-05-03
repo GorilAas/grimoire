@@ -4,8 +4,12 @@ import com.grimoire.backend.funcionario.dto.FuncionarioRequest;
 import com.grimoire.backend.funcionario.dto.FuncionarioResponse;
 import com.grimoire.backend.shared.enums.Cargo;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.net.URI;
 import java.util.List;
 
@@ -18,6 +22,18 @@ public class FuncionarioController {
     public FuncionarioController(FuncionarioService service) {
         this.service = service;
     }
+
+    public record CriarAcessoRequest(
+        @NotBlank(message = "E-mail é obrigatório")
+        @Email(message = "E-mail inválido")
+        String email,
+
+        @NotBlank(message = "Senha é obrigatória")
+        @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
+        String senha,
+
+        String perfil
+    ) {}
 
     @PostMapping
     public ResponseEntity<FuncionarioResponse> criar(@Valid @RequestBody FuncionarioRequest dto) {
@@ -61,6 +77,22 @@ public class FuncionarioController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(@PathVariable Long id) {
         service.inativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // POST /api/funcionarios/{id}/acesso — cria login para o funcionário
+    @PostMapping("/{id}/acesso")
+    public ResponseEntity<FuncionarioResponse> criarAcesso(
+            @PathVariable Long id,
+            @Valid @RequestBody CriarAcessoRequest dto) {
+        Funcionario f = service.criarAcesso(id, dto.email(), dto.senha(), dto.perfil());
+        return ResponseEntity.ok(FuncionarioResponse.from(f));
+    }
+
+    // DELETE /api/funcionarios/{id}/acesso — revoga acesso do funcionário
+    @DeleteMapping("/{id}/acesso")
+    public ResponseEntity<Void> revogarAcesso(@PathVariable Long id) {
+        service.revogarAcesso(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -50,6 +50,13 @@ management:
 frontend:
   url: ${FRONTEND_URL:http://localhost:3000}
 
+jwt:
+  secret: ${JWT_SECRET:PaoFresQUIM-chave-secreta-super-segura-minimo-256bits-aqui!}
+  expiration-ms: 86400000  # 24 horas
+
+admin:
+  senha: ${ADMIN_PASSWORD:FresQUIM@2025!}
+
 ---
 spring:
   config:

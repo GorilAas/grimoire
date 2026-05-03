@@ -24,12 +24,10 @@ public class Venda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // cliente é opcional — null em vendas à vista sem identificação
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-    // funcionário é obrigatório — RN06
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id", nullable = false)
     private Funcionario funcionario;
@@ -52,6 +50,20 @@ public class Venda {
     @Column(name = "nota_fiscal_emitida", nullable = false)
     private Boolean notaFiscalEmitida = false;
 
+    @Builder.Default
+    @Column(nullable = false, length = 12)
+    private String status = "ATIVA";
+
+    @Column(name = "motivo_cancelamento", columnDefinition = "TEXT")
+    private String motivoCancelamento;
+
+    @Column(name = "cancelado_em")
+    private LocalDateTime canceladoEm;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cancelado_por")
+    private Funcionario canceladoPor;
+
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ItemVenda> itens = new ArrayList<>();
@@ -60,5 +72,6 @@ public class Venda {
     void onCreate() {
         this.dataVenda = LocalDateTime.now();
         if (this.notaFiscalEmitida == null) this.notaFiscalEmitida = false;
+        if (this.status == null) this.status = "ATIVA";
     }
 }

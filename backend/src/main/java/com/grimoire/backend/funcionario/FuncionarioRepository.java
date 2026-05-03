@@ -4,6 +4,7 @@ import com.grimoire.backend.shared.enums.Cargo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
+import java.util.Optional;
 
 public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> {
 
@@ -15,4 +16,7 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
 
     @Query("SELECT f FROM Funcionario f ORDER BY f.nome")
     List<Funcionario> listarTodos();
+
+    // Busca o funcionário vinculado a um usuário — usado para ponto e acesso
+    Optional<Funcionario> findByUsuarioId(Long usuarioId);
 }

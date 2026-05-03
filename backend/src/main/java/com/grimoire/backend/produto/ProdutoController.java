@@ -66,4 +66,22 @@ public class ProdutoController {
         service.reativar(id);
         return ProdutoResponse.from(service.buscarPorId(id));
     }
+
+    @GetMapping("/busca")
+    public List<ProdutoResponse> buscarPorNome(@RequestParam String termo) {
+        return service.buscarPorNome(termo).stream()
+            .map(ProdutoResponse::from).toList();
+    }
+
+    @GetMapping("/abaixo-minimo")
+    public List<ProdutoResponse> listarAbaixoDoMinimo() {
+        return service.listarAbaixoDoMinimo().stream()
+            .map(ProdutoResponse::from).toList();
+    }
+
+    @GetMapping("/categoria/{categoriaId}")
+    public List<ProdutoResponse> listarPorCategoria(@PathVariable Long categoriaId) {
+        return service.listarPorCategoria(categoriaId).stream()
+            .map(ProdutoResponse::from).toList();
+    }
 }

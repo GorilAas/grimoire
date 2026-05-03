@@ -1,11 +1,15 @@
 package com.grimoire.backend.venda;
 
+import com.grimoire.backend.funcionario.FuncionarioRepository;
 import com.grimoire.backend.shared.enums.FormaPagamento;
 import com.grimoire.backend.venda.dto.VendaRequest;
 import com.grimoire.backend.venda.dto.VendaResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -14,13 +18,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/vendas")
+@RequiredArgsConstructor
 public class VendaController {
 
     private final VendaService service;
-
-    public VendaController(VendaService service) {
-        this.service = service;
-    }
+    private final FuncionarioRepository funcionarioRepository;
 
     @PostMapping
     public ResponseEntity<VendaResponse> registrar(@Valid @RequestBody VendaRequest dto) {
@@ -81,5 +83,19 @@ public class VendaController {
     @PatchMapping("/{id}/pagar")
     public VendaResponse marcarComoPago(@PathVariable Long id) {
         return VendaResponse.from(service.marcarComoPago(id));
+    }
+
+    public record CancelarVendaRequest(String motivo) {}
+
+    @PatchMapping("/{id}/cancelar")
+    public VendaResponse cancelar(
+            @PathVariable Long id,
+            @RequestBody(required = false) CancelarVendaRequest dto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long usuarioId = (Long) auth.getPrincipal();
+        Long funcId = funcionarioRepository.findByUsuarioId(usuarioId)
+            .map(f -> f.getId()).orElse(null);
+        String motivo = dto != null ? dto.motivo() : null;
+        return VendaResponse.from(service.cancelar(id, motivo, funcId));
     }
 }
