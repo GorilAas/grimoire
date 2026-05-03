@@ -103,7 +103,6 @@ public class ProdutoService {
 
         Produto salvo = repository.save(produto);
 
-        // Log de edição (zero = não altera estoque)
         estoqueService.registrar(salvo, TipoMovimentacao.ENTRADA,
             BigDecimal.ZERO.setScale(3), MotivoMovimentacao.EDICAO,
             null, "Edição — preço: " + dto.precoUnitario());

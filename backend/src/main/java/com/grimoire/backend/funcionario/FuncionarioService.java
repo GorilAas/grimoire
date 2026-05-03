@@ -80,7 +80,6 @@ public class FuncionarioService {
         funcionario.setAtivo(false);
     }
 
-    // Cria login (email + senha) para um funcionário existente
     public Funcionario criarAcesso(Long id, String email, String senha, String perfil) {
         Funcionario funcionario = buscarPorId(id);
 
@@ -88,7 +87,6 @@ public class FuncionarioService {
             throw new RegraNegocioException("Funcionário já possui acesso cadastrado");
         }
 
-        // perfil padrão baseado no cargo se não informado
         String perfilEfetivo = perfil != null ? perfil : resolverPerfil(funcionario.getCargo());
 
         Usuario usuario = usuarioService.criar(funcionario.getNome(), email, senha, perfilEfetivo);
@@ -96,7 +94,6 @@ public class FuncionarioService {
         return repository.save(funcionario);
     }
 
-    // Revoga o acesso (desvincula o usuário do funcionário e desativa)
     public void revogarAcesso(Long id) {
         Funcionario funcionario = buscarPorId(id);
 

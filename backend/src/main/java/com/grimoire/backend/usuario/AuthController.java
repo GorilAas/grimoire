@@ -31,7 +31,6 @@ public class AuthController {
         String perfil
     ) {}
 
-    // POST /api/auth/login
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest dto) {
         Usuario usuario = service.autenticar(dto.login(), dto.senha());

@@ -17,6 +17,5 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
     @Query("SELECT f FROM Funcionario f ORDER BY f.nome")
     List<Funcionario> listarTodos();
 
-    // Busca o funcionário vinculado a um usuário — usado para ponto e acesso
     Optional<Funcionario> findByUsuarioId(Long usuarioId);
 }

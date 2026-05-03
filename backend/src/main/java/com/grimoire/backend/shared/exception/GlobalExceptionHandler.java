@@ -20,7 +20,6 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // 404 — recurso de negócio não encontrado (ex: cliente 99 não existe)
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> handleNaoEncontrado(
             RecursoNaoEncontradoException e, HttpServletRequest req) {
@@ -32,7 +31,6 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // 404 — rota que não existe (ex: GET /api/xyz)
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Map<String, Object>> handleRotaNaoEncontrada(
             NoHandlerFoundException e, HttpServletRequest req) {
@@ -44,7 +42,6 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // 405 — método HTTP errado (ex: POST em rota que só aceita GET)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Map<String, Object>> handleMetodoNaoPermitido(
             HttpRequestMethodNotSupportedException e, HttpServletRequest req) {
@@ -56,7 +53,6 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // 422 — regra de negócio violada (ex: fiado sem cliente, CPF duplicado)
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<Map<String, Object>> handleRegraNegocio(
             RegraNegocioException e, HttpServletRequest req) {
@@ -68,7 +64,6 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // 400 — falha de validação de campos (@NotBlank, @Pattern, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidacao(
             MethodArgumentNotValidException e, HttpServletRequest req) {
@@ -86,7 +81,6 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // 500 — qualquer erro inesperado (nunca expõe detalhes internos ao cliente)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenerico(
             Exception e, HttpServletRequest req) {

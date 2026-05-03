@@ -80,7 +80,6 @@ public class FuncionarioController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST /api/funcionarios/{id}/acesso — cria login para o funcionário
     @PostMapping("/{id}/acesso")
     public ResponseEntity<FuncionarioResponse> criarAcesso(
             @PathVariable Long id,
@@ -89,7 +88,6 @@ public class FuncionarioController {
         return ResponseEntity.ok(FuncionarioResponse.from(f));
     }
 
-    // DELETE /api/funcionarios/{id}/acesso — revoga acesso do funcionário
     @DeleteMapping("/{id}/acesso")
     public ResponseEntity<Void> revogarAcesso(@PathVariable Long id) {
         service.revogarAcesso(id);

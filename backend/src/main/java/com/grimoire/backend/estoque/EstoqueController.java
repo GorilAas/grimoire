@@ -12,7 +12,6 @@ public class EstoqueController {
 
     private final EstoqueService service;
 
-    // GET /api/estoque/produto/{produtoId}
     @GetMapping("/produto/{produtoId}")
     public List<MovimentacaoEstoqueResponse> listarPorProduto(@PathVariable Long produtoId) {
         return service.listarPorProduto(produtoId);

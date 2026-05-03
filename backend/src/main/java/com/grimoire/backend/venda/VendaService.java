@@ -161,14 +161,12 @@ public class VendaService {
         if ("CANCELADA".equals(venda.getStatus()))
             throw new RegraNegocioException("Venda já está cancelada");
 
-        // Estorna estoque para cada item
         for (ItemVenda item : venda.getItens()) {
             estoqueService.registrar(item.getProduto(), TipoMovimentacao.ENTRADA,
                 item.getQuantidade(), MotivoMovimentacao.DEVOLUCAO,
                 venda.getId(), "Cancelamento da venda #" + venda.getId());
         }
 
-        // Se era fiado não pago, abate do saldo devedor
         if (venda.getFormaPagamento() == FormaPagamento.FIADO
             && venda.getCliente() != null
             && venda.getStatusFiado() != StatusFiado.PAGO) {

@@ -41,11 +41,9 @@ public class RegistroPontoService {
         boolean ehGestao = "ADMIN".equals(perfil) || "GERENTE".equals(perfil);
 
         if (ehGestao && funcionarioIdOverride != null) {
-            // Admin/Gerente pode bater por qualquer funcionário
             funcionario = funcionarioRepository.findById(funcionarioIdOverride)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Funcionário " + funcionarioIdOverride + " não encontrado"));
         } else {
-            // Funcionário bate o próprio ponto via usuario_id do token
             funcionario = funcionarioRepository.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new RegraNegocioException(
                     "Nenhum funcionário vinculado a este usuário. Contate o administrador."));
@@ -126,8 +124,6 @@ public class RegistroPontoService {
                 inicio.atStartOfDay(), fim.atTime(LocalTime.MAX))
             .stream().map(RegistroPontoResponse::from).toList();
     }
-
-    // ─── helpers ─────────────────────────────────────────────────────────────
 
     private ResumoPontoResponse calcularResumo(Funcionario funcionario, LocalDate data,
                                                 List<RegistroPonto> registros) {

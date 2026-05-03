@@ -42,7 +42,6 @@ public class EstoqueService {
             .build();
         repository.save(mov);
 
-        // Atualiza quantidade_estoque no produto (ignora movimentos com qtd zero, ex: EDICAO)
         if (quantidade.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal atual = produto.getQuantidadeEstoque() != null
                 ? produto.getQuantidadeEstoque() : BigDecimal.ZERO;

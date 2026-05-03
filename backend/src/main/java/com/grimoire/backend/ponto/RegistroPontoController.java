@@ -24,7 +24,6 @@ public class RegistroPontoController {
     private final RegistroPontoService service;
 
     public record BaterPontoRequest(
-        // Opcional: Admin/Gerente podem passar para bater por outro funcionário
         Long funcionarioId
     ) {}
 

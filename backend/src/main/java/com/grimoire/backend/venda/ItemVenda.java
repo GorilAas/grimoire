@@ -29,7 +29,6 @@ public class ItemVenda {
     @Column(nullable = false, precision = 10, scale = 3)
     private BigDecimal quantidade;
 
-    // snapshot do preço no momento da venda — nunca muda
     @Column(name = "preco_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal precoUnitario;
 

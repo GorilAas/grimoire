@@ -37,7 +37,6 @@ public class MovimentacaoEstoque {
     @Column(nullable = false, length = 20)
     private MotivoMovimentacao motivo;
 
-    // ID da venda ou outro registro que gerou a movimentação
     @Column(name = "referencia_id")
     private Long referenciaId;
 

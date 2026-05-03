@@ -8,11 +8,9 @@ import java.util.List;
 
 public record VendaRequest(
 
-    // obrigatório — RN06
     @NotNull(message = "Funcionário é obrigatório")
     Long funcionarioId,
 
-    // opcional — obrigatório apenas para FIADO
     Long clienteId,
 
     @NotNull(message = "Forma de pagamento é obrigatória")
