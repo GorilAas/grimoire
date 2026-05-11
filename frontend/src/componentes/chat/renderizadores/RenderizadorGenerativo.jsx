@@ -1,7 +1,7 @@
 import RespostaTexto from './RespostaTexto'
 import CartaoKpiChat from './CartaoKpiChat'
 import RenderizadorTabela from './RenderizadorTabela'
-import { GraficoBarrasChat, GraficoAreaChat } from './RenderizadorGrafico'
+import { GraficoBarrasChat, GraficoAreaChat, GraficoPizzaChat } from './RenderizadorGrafico'
 
 export default function RenderizadorGenerativo({ bloco }) {
   const envolto = (filho) => (
@@ -15,19 +15,16 @@ export default function RenderizadorGenerativo({ bloco }) {
   switch (bloco.tipo) {
     case 'texto':
       return <RespostaTexto conteudo={bloco.conteudo} />
-
     case 'kpis':
       return envolto(<CartaoKpiChat itens={bloco.itens} />)
-
     case 'tabela':
       return envolto(<RenderizadorTabela colunas={bloco.colunas} linhas={bloco.linhas} />)
-
     case 'grafico_barras':
       return envolto(<GraficoBarrasChat titulo={bloco.titulo} dados={bloco.dados} />)
-
     case 'grafico_area':
       return envolto(<GraficoAreaChat titulo={bloco.titulo} dados={bloco.dados} />)
-
+    case 'grafico_pizza':
+      return envolto(<GraficoPizzaChat titulo={bloco.titulo} dados={bloco.dados} />)
     default:
       return null
   }

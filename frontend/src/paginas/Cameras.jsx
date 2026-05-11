@@ -3,28 +3,29 @@ import CabecalhoPagina from '@/componentes/ui/CabecalhoPagina'
 import Chip from '@/componentes/ui/Chip'
 
 const CAMERAS = [
-  { rotulo: 'Caixa Principal', demo: true  },
-  { rotulo: 'Entrada',         demo: false },
-  { rotulo: 'Estoque',         demo: false },
-  { rotulo: 'Cozinha',         demo: false },
+  { rotulo: 'Caixa Principal', src: null },
+  { rotulo: 'Entrada',         src: '/videos/camera/entrada.mp4' },
+  { rotulo: 'Estoque',         src: '/videos/camera/estoque.mp4' },
+  { rotulo: 'Cozinha',         src: null },
 ]
 
-function FeedCamera({ rotulo, demo }) {
+function FeedCamera({ rotulo, src }) {
+  const aoVivo = !!src
   return (
     <div className="relative rounded-[14px] overflow-hidden border border-[var(--linha-suave)] aspect-video group"
       style={{ background: 'oklch(0.12 0.01 90)' }}
     >
-      {demo ? (
+      {aoVivo ? (
         <video
           className="w-full h-full object-cover"
-          src="/cameras/demo.mp4"
+          src={src}
           autoPlay
           muted
           loop
           playsInline
         />
       ) : (
-        /* Simulação de câmera offline */
+        /* Câmera offline */
         <div className="w-full h-full flex flex-col items-center justify-center gap-3">
           <div
             className="absolute inset-0 opacity-[0.04]"
@@ -49,9 +50,9 @@ function FeedCamera({ rotulo, demo }) {
           {rotulo}
         </span>
         <div className="flex items-center gap-1.5">
-          {demo && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
+          {aoVivo && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
           <span className="font-mono text-[9.5px] tracking-[0.08em] text-white/60">
-            {demo ? 'AO VIVO' : 'OFFLINE'}
+            {aoVivo ? 'AO VIVO' : 'OFFLINE'}
           </span>
         </div>
       </div>
@@ -71,7 +72,7 @@ function FeedCamera({ rotulo, demo }) {
 }
 
 export default function Cameras() {
-  const aoVivo = CAMERAS.filter(c => c.demo).length
+  const aoVivo = CAMERAS.filter(c => c.src).length
   const offline = CAMERAS.length - aoVivo
 
   return (

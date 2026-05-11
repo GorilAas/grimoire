@@ -1,137 +1,139 @@
-import { BookOpen, Image, Video, CheckCircle2 } from 'lucide-react'
 import CabecalhoPagina from '@/componentes/ui/CabecalhoPagina'
 import Cartao from '@/componentes/ui/Cartao'
 
 const TOPICOS = [
   {
     titulo: 'Dashboard',
-    objetivo: 'Acompanhar vendas do dia, caixa aberto e alertas de estoque.',
+    objetivo: 'Acompanhe as vendas do dia, o status do caixa e os alertas de estoque em tempo real.',
     passos: [
-      'Use Atualizar para buscar os dados mais recentes.',
-      'Confira o card de estoque abaixo do mínimo antes de iniciar novas vendas.',
-      'Clique na logo PãoFresQUIM para voltar ao Dashboard de qualquer tela.',
+      'Os 4 cards no topo mostram receita do dia, total de tickets, ticket médio e fiado em aberto.',
+      'O painel de estoque abaixo do mínimo lista os produtos que precisam de reposição urgente.',
+      'Os gráficos mostram receita por hora e distribuição por forma de pagamento.',
+      'Use o botão Atualizar para buscar os dados mais recentes sem recarregar a página.',
     ],
-    imagem: 'Print do Dashboard mostrando cards de receita, estoque abaixo do mínimo e status do caixa.',
+    imagens: ['/imagens/ajuda/dashboard.png'],
   },
   {
     titulo: 'Vendas',
-    objetivo: 'Registrar vendas, consultar fiado e cancelar vendas quando houver erro.',
+    objetivo: 'Registre vendas, consulte o histórico, gerencie fiado em aberto e cancele quando necessário.',
     passos: [
-      'Clique em Nova venda.',
-      'Selecione funcionário, forma de pagamento, cliente quando necessário e produtos.',
-      'Para venda fiado, sempre vincule um cliente.',
-      'Abra uma venda na lista para consultar detalhes, itens e cancelar se for necessário.',
+      'Clique em Nova venda e preencha: funcionário responsável, forma de pagamento, cliente (se houver) e produtos.',
+      'Para venda fiado, selecione a aba Fiado em aberto — ela mostra o total de vendas pendentes.',
+      'Na lista de vendas, cada linha mostra data, cliente, forma de pagamento, total e status (Paga, Fiado, Cancelada).',
+      'Para cancelar uma venda, clique no ícone X da linha — o estoque é estornado automaticamente.',
     ],
-    imagem: 'Print do modal de venda aberto com funcionário, forma de pagamento, cliente e itens preenchidos.',
+    imagens: ['/imagens/ajuda/venda1.png', '/imagens/ajuda/venda2.png'],
   },
   {
-    titulo: 'Produtos e estoque',
-    objetivo: 'Cadastrar produtos, organizar por categoria e controlar movimentações.',
+    titulo: 'Produtos',
+    objetivo: 'Cadastre produtos, organize por categoria, controle estoque e ajuste movimentações.',
     passos: [
-      'Informe preço de venda, preço de custo, estoque inicial e estoque mínimo.',
-      'Depois do cadastro, ajuste estoque apenas pelo fluxo de ajuste para manter histórico.',
-      'Use categorias para facilitar busca e filtro.',
+      'Use os filtros de categoria no topo da página para navegar entre os grupos de produtos.',
+      'Produtos com estoque abaixo do mínimo aparecem com ícone de alerta na coluna Estoque.',
+      'No cadastro, informe preço de venda, preço de custo, estoque inicial e estoque mínimo.',
+      'Use o botão de ajuste de estoque para registrar entradas e saídas com histórico.',
     ],
-    imagem: 'Print da tela de produtos destacando filtro por categoria, estoque e botão de ajuste.',
+    imagens: ['/imagens/ajuda/produto1.png', '/imagens/ajuda/produto2.png'],
   },
   {
     titulo: 'Clientes e fiado',
-    objetivo: 'Cadastrar clientes, consultar saldo devedor e histórico de compras.',
+    objetivo: 'Cadastre clientes, consulte saldo devedor, histórico de compras e gerencie fiado.',
     passos: [
-      'Abra o cadastro do cliente para editar dados básicos.',
-      'Clique no histórico para ver compras anteriores.',
-      'Evite venda fiado para cliente com pendência alta sem autorização do gerente.',
+      'Clique em Novo cliente e preencha nome, CPF, telefone, e-mail e endereço.',
+      'A coluna Saldo devedor mostra o total em aberto de compras no fiado.',
+      'Clique em qualquer linha da tabela para ver o histórico completo de compras do cliente.',
+      'Clientes negativados aparecem com o chip em vermelho na coluna Negativado.',
     ],
-    imagem: 'Print do modal de histórico do cliente com compras e total em fiado.',
+    imagens: ['/imagens/ajuda/cliente1.png', '/imagens/ajuda/clientes2.png'],
   },
   {
-    titulo: 'Funcionários, cargos e acessos',
-    objetivo: 'Controlar cadastro, login e telas disponíveis para cada funcionário.',
+    titulo: 'Funcionários e acessos',
+    objetivo: 'Cadastre funcionários, defina cargos, crie logins e controle quais telas cada um pode acessar.',
     passos: [
-      'Cadastre o funcionário com cargo e carga horária diária.',
-      'Crie acesso apenas para quem precisa entrar no sistema.',
-      'Selecione as telas permitidas no modal de acesso.',
-      'O administrador principal não deve ter acesso revogado.',
+      'Cadastre o funcionário com nome, cargo, telefone, data de nascimento e carga horária diária.',
+      'Após o cadastro, clique na chave para criar o acesso ao sistema com e-mail e senha.',
+      'No modal de acesso, defina o perfil (Gerente, Atendente, Padeiro) e marque as telas permitidas.',
+      'Use Revogar acesso para bloquear o login de um funcionário sem excluir o cadastro.',
     ],
-    imagem: 'Print do modal de acesso do funcionário com checkboxes de telas permitidas.',
+    imagens: ['/imagens/ajuda/funcionario3.png', '/imagens/ajuda/funcionario2.png'],
   },
   {
-    titulo: 'Ponto',
-    objetivo: 'Registrar entrada e saída, calcular horas trabalhadas e saldo.',
+    titulo: 'Ponto eletrônico',
+    objetivo: 'Registre entradas e saídas, acompanhe horas trabalhadas e o saldo da semana.',
     passos: [
-      'Funcionário comum bate o próprio ponto.',
-      'Gerente e administrador podem consultar outros funcionários.',
-      'Ajuste manual deve ser usado apenas quando houver erro justificado.',
+      'Selecione o funcionário (admins e gerentes podem consultar qualquer um).',
+      'Clique em Registrar Entrada ao começar o expediente e Registrar Saída ao terminar.',
+      'O painel da direita mostra o saldo acumulado da semana em horas extras ou horas a compensar.',
+      'Cada dia da semana aparece com uma barra proporcional às horas trabalhadas.',
     ],
-    imagem: 'Print da tela de ponto mostrando botão bater ponto e resumo semanal.',
+    imagens: ['/imagens/ajuda/ponto.png'],
   },
   {
     titulo: 'Caixa',
-    objetivo: 'Abrir e fechar o caixa do dia.',
+    objetivo: 'Abra e feche o caixa do dia, informe o fundo de troco e acompanhe o histórico.',
     passos: [
-      'Abra o caixa com valor inicial antes de iniciar vendas.',
-      'Feche o caixa ao fim do expediente com valor contado.',
-      'Registre observações quando houver divergência.',
+      'Antes de iniciar as vendas, abra o caixa com o valor do fundo de troco disponível.',
+      'Ao fechar o expediente, informe o valor contado em caixa e confirme o fechamento.',
+      'O histórico na lateral mostra todos os caixas abertos e fechados com data e operador.',
+      'Registre observações no fechamento quando houver divergência entre o esperado e o contado.',
     ],
-    imagem: 'Print da tela de caixa com caixa aberto e histórico de fechamentos.',
+    imagens: ['/imagens/ajuda/caixa.png'],
   },
 ]
 
 export default function Ajuda() {
   return (
-    <div className="pagina-entrada p-7 flex flex-col gap-5 max-w-[1200px] mx-auto">
+    <div className="pagina-entrada p-7 flex flex-col gap-6 max-w-[1200px] mx-auto">
       <CabecalhoPagina
         titulo="Ajuda"
         subtitulo="Wiki interna de uso do Pão FresQUIM"
       />
 
-      <Cartao className="p-5">
-        <div className="flex items-start gap-3">
-          <BookOpen size={18} className="text-[var(--acento)] mt-0.5" />
-          <div>
-            <h3 className="text-[15px] font-semibold text-[var(--texto-0)]">Como usar esta wiki</h3>
-            <p className="text-[13px] text-[var(--texto-2)] mt-1">
-              Os blocos abaixo explicam o fluxo ideal de cada página. Onde houver área de imagem ou vídeo,
-              coloque os arquivos em <code className="font-mono text-[12px]">public/imagens/ajuda</code> ou
-              <code className="font-mono text-[12px] ml-1">public/videos/ajuda</code>.
-            </p>
-          </div>
-        </div>
-      </Cartao>
-
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
+      <div className="flex flex-col gap-6">
         {TOPICOS.map(topico => (
-          <Cartao key={topico.titulo} className="p-5 flex flex-col gap-4">
-            <div>
-              <h3 className="text-[16px] font-semibold text-[var(--texto-0)]">{topico.titulo}</h3>
-              <p className="text-[13px] text-[var(--texto-2)] mt-1">{topico.objetivo}</p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              {topico.passos.map(passo => (
-                <div key={passo} className="flex gap-2 text-[12.5px] text-[var(--texto-1)]">
-                  <CheckCircle2 size={13} className="text-[var(--positivo)] shrink-0 mt-0.5" />
-                  <span>{passo}</span>
+          <Cartao key={topico.titulo} className="overflow-hidden">
+            {/* Imagens */}
+            <div className={[
+              'grid gap-0',
+              topico.imagens.length === 2 ? 'grid-cols-2' : 'grid-cols-1',
+            ].join(' ')}>
+              {topico.imagens.map((src, i) => (
+                <div
+                  key={src}
+                  className={[
+                    'overflow-hidden',
+                    topico.imagens.length === 2 && i === 0 ? 'border-r border-[var(--linha-suave)]' : '',
+                  ].join(' ')}
+                  style={{ background: 'oklch(0.1 0.01 90)' }}
+                >
+                  <img
+                    src={src}
+                    alt={`${topico.titulo} — tela ${i + 1}`}
+                    className="w-full h-auto block"
+                    style={{ maxHeight: '340px', objectFit: 'cover', objectPosition: 'top' }}
+                  />
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-2 mt-auto">
-              <div className="rounded-[10px] border border-dashed border-[var(--linha)] p-3 bg-[var(--fundo-2)]">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-[var(--texto-0)]">
-                  <Image size={13} />
-                  Imagem
+            {/* Conteúdo */}
+            <div className="p-5 border-t border-[var(--linha-suave)]">
+              <div className="flex flex-col gap-3 lg:flex-row lg:gap-8">
+                <div className="lg:w-[260px] shrink-0">
+                  <h3 className="text-[15px] font-semibold text-[var(--texto-0)]">{topico.titulo}</h3>
+                  <p className="text-[13px] text-[var(--texto-2)] mt-1 leading-relaxed">{topico.objetivo}</p>
                 </div>
-                <p className="text-[11px] text-[var(--texto-3)] mt-1">{topico.imagem}</p>
-              </div>
-              <div className="rounded-[10px] border border-dashed border-[var(--linha)] p-3 bg-[var(--fundo-2)]">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-[var(--texto-0)]">
-                  <Video size={13} />
-                  Vídeo
+
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                  {topico.passos.map((passo, i) => (
+                    <div key={i} className="flex gap-2.5 text-[12.5px] text-[var(--texto-1)] leading-relaxed">
+                      <span className="font-mono text-[10px] text-[var(--acento)] font-bold mt-0.5 shrink-0 w-4">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span>{passo}</span>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-[11px] text-[var(--texto-3)] mt-1">
-                  Opcional: gravação curta mostrando o fluxo desta página.
-                </p>
               </div>
             </div>
           </Cartao>

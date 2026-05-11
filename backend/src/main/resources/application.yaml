@@ -57,6 +57,10 @@ jwt:
 admin:
   senha: ${ADMIN_PASSWORD:FresQUIM@2025!}
 
+groq:
+  api-key: ${GROQ_API_KEY}
+  modelo: llama-3.3-70b-versatile
+
 ---
 spring:
   config:

@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "Bash(npm install *)",
+      "PowerShell($env:PATH = \"$env:USERPROFILE\\\\AppData\\\\Roaming\\\\nvm\\\\v22.16.0;$env:USERPROFILE\\\\AppData\\\\Roaming\\\\nvm;\" + $env:PATH; node --version; npm --version)",
+      "Read(//mnt/c/Users/ISABELA/grimoire/**)",
+      "Bash(npm run *)",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\ISABELA\\\\grimoire\\\\frontend\"; Get-Command npm -ErrorAction SilentlyContinue; Get-Command node -ErrorAction SilentlyContinue; $env:PATH -split ';' | Where-Object { $_ -match 'node|npm' })",
+      "Bash(export PATH=\"$NVM_NODE:$PATH\")",
+      "Bash(npm --version)",
+      "Read(//tmp/**)",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(curl -s http://localhost:8080/api/clientes)",
+      "Bash(curl -s \"http://localhost:8080/api/vendas/periodo?dataInicio=2026-04-01&dataFim=2026-05-02\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s \"http://localhost:8080/api/vendas\")",
+      "Bash(curl -s \"http://localhost:8080/api/vendas/fiado/aberto\")",
+      "Bash(curl -s \"http://localhost:8080/api/funcionarios\")",
+      "Bash(curl -s \"http://localhost:8080/api/vendas/periodo?dataInicio=2026-04-22&dataFim=2026-04-22\")",
+      "Bash(curl -s \"http://localhost:8080/api/produtos\")",
+      "mcp__Claude_in_Chrome__read_console_messages",
+      "Bash(curl -s -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' -d '{\"login\":\"admin\",\"senha\":\"admin\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"admin\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' -d '{\"login\":\"admin\",\"senha\":\"FresQUIM@2025!\"}')",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(pip list *)",
+      "Bash(pip install *)",
+      "Bash(python -c ' *)",
+      "Bash(git clean *)",
+      "Bash(git merge *)",
+      "Bash(bash start.sh)",
+      "Bash(echo \"PID backend: $!\")",
+      "Bash(echo \"PID frontend: $!\")"
+    ]
+  }
+}
