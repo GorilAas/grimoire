@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/contextos/AuthContexto'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { useAuth } from '@/contextos/AuthContexto'
 
 export default function Login() {
   const { login } = useAuth()
@@ -70,10 +70,11 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium text-[var(--texto-2)]">
+            <label htmlFor="login" className="text-[12px] font-medium text-[var(--texto-2)]">
               Login
             </label>
             <input
+              id="login"
               type="text"
               value={loginStr}
               onChange={e => setLoginStr(e.target.value)}
@@ -85,11 +86,12 @@ export default function Login() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-medium text-[var(--texto-2)]">
+            <label htmlFor="senha" className="text-[12px] font-medium text-[var(--texto-2)]">
               Senha
             </label>
             <div className="relative">
               <input
+                id="senha"
                 type={senhaVisivel ? 'text' : 'password'}
                 value={senha}
                 onChange={e => setSenha(e.target.value)}

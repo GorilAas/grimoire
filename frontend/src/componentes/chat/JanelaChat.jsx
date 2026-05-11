@@ -31,8 +31,8 @@ export default function JanelaChat() {
     }
   }, [mensagens, carregando])
 
-  async function enviar(textoDirecto) {
-    const texto = (textoDirecto ?? entrada).trim()
+  async function enviar(textoDireto) {
+    const texto = (textoDireto ?? entrada).trim()
     if (!texto || carregando) return
 
     const hora = horaAtual()
@@ -54,11 +54,11 @@ export default function JanelaChat() {
         { papel: 'usuario',    conteudo: texto },
         { papel: 'assistente', conteudo: extrairTextoParaHistorico(blocos) },
       ])
-    } catch (err) {
+    } catch {
       const msgErro = {
         papel: 'assistente',
         hora: horaAtual(),
-        blocos: [{ tipo: 'texto', conteudo: 'Erro ao conectar com o assistente. Verifique a conexao com o backend.' }],
+        blocos: [{ tipo: 'texto', conteudo: 'Erro ao conectar com o assistente. Verifique a conexão com o backend.' }],
       }
       setMensagens(prev => [...prev, msgErro])
     } finally {
@@ -73,7 +73,7 @@ export default function JanelaChat() {
           {mensagens.length === 0 && (
             <div className="flex flex-col items-center gap-3 py-20 text-center">
               <p className="text-[15px] font-semibold text-[var(--texto-0)]">
-                Ola{usuario?.nome ? `, ${usuario.nome.split(' ')[0]}` : ''}!
+                Olá{usuario?.nome ? `, ${usuario.nome.split(' ')[0]}` : ''}!
               </p>
               <p className="text-[13px] text-[var(--texto-3)] max-w-[420px] leading-relaxed">
                 Pergunte sobre vendas, estoque, clientes ou qualquer dado do sistema. O assistente consulta o banco em tempo real.

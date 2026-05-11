@@ -11,21 +11,31 @@ const CAMERAS = [
 
 function FeedCamera({ rotulo, src }) {
   const aoVivo = !!src
+
+  function manterVideoRodando(evento) {
+    const video = evento.currentTarget
+    if (video.paused) video.play().catch(() => {})
+  }
+
   return (
-    <div className="relative rounded-[14px] overflow-hidden border border-[var(--linha-suave)] aspect-video group"
+    <div
+      className="relative rounded-[14px] overflow-hidden border border-[var(--linha-suave)] aspect-video group"
       style={{ background: 'oklch(0.12 0.01 90)' }}
     >
       {aoVivo ? (
         <video
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover pointer-events-none select-none"
           src={src}
           autoPlay
           muted
           loop
           playsInline
+          disablePictureInPicture
+          controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+          onPause={manterVideoRodando}
+          onEnded={manterVideoRodando}
         />
       ) : (
-        /* Câmera offline */
         <div className="w-full h-full flex flex-col items-center justify-center gap-3">
           <div
             className="absolute inset-0 opacity-[0.04]"
@@ -41,7 +51,6 @@ function FeedCamera({ rotulo, src }) {
         </div>
       )}
 
-      {/* HUD superior */}
       <div
         className="absolute top-0 left-0 right-0 flex items-center justify-between px-3.5 py-2.5 pointer-events-none"
         style={{ background: 'linear-gradient(to bottom, oklch(0 0 0 / 0.65), transparent)' }}
@@ -57,7 +66,6 @@ function FeedCamera({ rotulo, src }) {
         </div>
       </div>
 
-      {/* HUD inferior */}
       <div
         className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3.5 py-2.5 pointer-events-none"
         style={{ background: 'linear-gradient(to top, oklch(0 0 0 / 0.65), transparent)' }}
@@ -77,12 +85,12 @@ export default function Cameras() {
 
   return (
     <div className="pagina-entrada p-7 flex flex-col gap-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <CabecalhoPagina
           titulo="Câmeras"
           subtitulo="Monitoramento em tempo real das dependências"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Chip variante="ok">
             <span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-1.5" />
             {aoVivo} ao vivo
@@ -91,7 +99,7 @@ export default function Cameras() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {CAMERAS.map(cam => (
           <FeedCamera key={cam.rotulo} {...cam} />
         ))}
