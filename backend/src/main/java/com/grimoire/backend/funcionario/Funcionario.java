@@ -1,9 +1,9 @@
 package com.grimoire.backend.funcionario;
 
-import com.grimoire.backend.shared.enums.Cargo;
 import com.grimoire.backend.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,9 +24,8 @@ public class Funcionario {
     @Column(nullable = false, length = 150)
     private String nome;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Cargo cargo;
+    @Column(nullable = false, length = 80)
+    private String cargo;
 
     @Column(length = 20)
     private String telefone;
@@ -62,13 +61,13 @@ public class Funcionario {
     private LocalDateTime editadoEm;
 
     @PrePersist
-    void onCreate() {
+    void aoCriar() {
         this.criadoEm = LocalDateTime.now();
         if (this.ativo == null) this.ativo = true;
     }
 
     @PreUpdate
-    void onUpdate() {
+    void aoEditar() {
         this.editadoEm = LocalDateTime.now();
     }
 }

@@ -46,92 +46,90 @@ public class VendaService {
     }
 
     public Venda registrar(VendaRequest dto) {
-        Funcionario funcionario = funcionarioRepository.findById(dto.funcionarioId())
-            .orElseThrow(() -> new RecursoNaoEncontradoException(
-                "Funcionário " + dto.funcionarioId() + " não encontrado"));
-
-        Cliente cliente = null;
-        if (dto.formaPagamento() == FormaPagamento.FIADO) {
-            if (dto.clienteId() == null)
-                throw new RegraNegocioException("Venda fiado exige cliente cadastrado (RN01)");
-            cliente = clienteRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
-                    "Cliente " + dto.clienteId() + " não encontrado"));
-            if (Boolean.TRUE.equals(cliente.getNegativado()))
-                throw new RegraNegocioException(
-                    "Cliente negativado no Serasa — venda fiado bloqueada (RN02/RN03)");
-        }
-
-        List<ItemVenda> itens = new ArrayList<>();
-        BigDecimal total = BigDecimal.ZERO;
-
-        for (VendaRequest.ItemVendaRequest itemDto : dto.itens()) {
-            Produto produto = produtoRepository.findById(itemDto.produtoId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
-                    "Produto " + itemDto.produtoId() + " não encontrado"));
-            if (!produto.isAtivo())
-                throw new RegraNegocioException(
-                    "Produto '" + produto.getNome() + "' está inativo");
-
-            BigDecimal subtotal = produto.getPrecoUnitario().multiply(itemDto.quantidade());
-            itens.add(ItemVenda.builder()
-                .produto(produto)
-                .quantidade(itemDto.quantidade())
-                .precoUnitario(produto.getPrecoUnitario())
-                .subtotal(subtotal)
-                .build());
-            total = total.add(subtotal);
-        }
+        DadosVenda dados = montarDadosVenda(dto);
 
         Venda venda = Venda.builder()
-            .cliente(cliente)
-            .funcionario(funcionario)
-            .valorTotal(total)
+            .cliente(dados.cliente())
+            .funcionario(dados.funcionario())
+            .valorTotal(dados.total())
             .formaPagamento(dto.formaPagamento())
             .statusFiado(dto.formaPagamento() == FormaPagamento.FIADO ? StatusFiado.PENDENTE : null)
             .notaFiscalEmitida(false)
             .status("ATIVA")
             .build();
 
-        itens.forEach(item -> item.setVenda(venda));
-        venda.getItens().addAll(itens);
+        dados.itens().forEach(item -> item.setVenda(venda));
+        venda.getItens().addAll(dados.itens());
 
         Venda vendaSalva = vendaRepository.save(venda);
+        registrarSaidaEstoque(vendaSalva, "Venda #" + vendaSalva.getId());
+        adicionarSaldoFiado(vendaSalva);
 
-        for (ItemVenda item : itens) {
-            estoqueService.registrar(item.getProduto(), TipoMovimentacao.SAIDA,
-                item.getQuantidade(), MotivoMovimentacao.VENDA,
-                vendaSalva.getId(), "Venda #" + vendaSalva.getId());
+        return vendaSalva;
+    }
+
+    public Venda atualizar(Long id, VendaRequest dto) {
+        Venda venda = buscarPorId(id);
+
+        if ("CANCELADA".equals(venda.getStatus())) {
+            throw new RegraNegocioException("Venda cancelada nao pode ser editada");
+        }
+        if (venda.getStatusFiado() == StatusFiado.PAGO) {
+            throw new RegraNegocioException("Venda fiado ja paga nao pode ser editada");
         }
 
-        if (dto.formaPagamento() == FormaPagamento.FIADO && cliente != null) {
-            cliente.setSaldoDevedor(cliente.getSaldoDevedor().add(total));
-            clienteRepository.save(cliente);
-        }
+        estornarEstoque(venda, "Edicao da venda #" + venda.getId() + " - estorno anterior");
+        removerSaldoFiado(venda);
+
+        DadosVenda dados = montarDadosVenda(dto);
+
+        venda.setCliente(dados.cliente());
+        venda.setFuncionario(dados.funcionario());
+        venda.setValorTotal(dados.total());
+        venda.setFormaPagamento(dto.formaPagamento());
+        venda.setStatusFiado(dto.formaPagamento() == FormaPagamento.FIADO ? StatusFiado.PENDENTE : null);
+        venda.getItens().clear();
+
+        dados.itens().forEach(item -> item.setVenda(venda));
+        venda.getItens().addAll(dados.itens());
+
+        Venda vendaSalva = vendaRepository.save(venda);
+        registrarSaidaEstoque(vendaSalva, "Edicao da venda #" + vendaSalva.getId());
+        adicionarSaldoFiado(vendaSalva);
 
         return vendaSalva;
     }
 
     @Transactional(readOnly = true)
     public Venda buscarPorId(Long id) {
-        return vendaRepository.findById(id)
-            .orElseThrow(() -> new RecursoNaoEncontradoException("Venda " + id + " não encontrada"));
+        return vendaRepository.buscarPorIdCompleto(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Venda " + id + " nao encontrada"));
     }
 
     @Transactional(readOnly = true)
-    public List<Venda> listarTodas() { return vendaRepository.listarTodas(); }
+    public List<Venda> listarTodas() {
+        return vendaRepository.listarTodas();
+    }
 
     @Transactional(readOnly = true)
-    public List<Venda> listarPorCliente(Long clienteId) { return vendaRepository.listarPorCliente(clienteId); }
+    public List<Venda> listarPorCliente(Long clienteId) {
+        return vendaRepository.listarPorCliente(clienteId);
+    }
 
     @Transactional(readOnly = true)
-    public List<Venda> listarFiadoEmAberto() { return vendaRepository.listarPorStatusFiado(StatusFiado.PENDENTE); }
+    public List<Venda> listarFiadoEmAberto() {
+        return vendaRepository.listarPorStatusFiado(StatusFiado.PENDENTE);
+    }
 
     @Transactional(readOnly = true)
-    public List<Venda> listarPorFuncionario(Long funcionarioId) { return vendaRepository.listarPorFuncionario(funcionarioId); }
+    public List<Venda> listarPorFuncionario(Long funcionarioId) {
+        return vendaRepository.listarPorFuncionario(funcionarioId);
+    }
 
     @Transactional(readOnly = true)
-    public List<Venda> listarPorFormaPagamento(FormaPagamento forma) { return vendaRepository.listarPorFormaPagamento(forma); }
+    public List<Venda> listarPorFormaPagamento(FormaPagamento forma) {
+        return vendaRepository.listarPorFormaPagamento(forma);
+    }
 
     @Transactional(readOnly = true)
     public List<Venda> listarPorPeriodo(LocalDate dataInicio, LocalDate dataFim) {
@@ -141,16 +139,17 @@ public class VendaService {
 
     public Venda marcarComoPago(Long id) {
         Venda venda = buscarPorId(id);
-        if (venda.getFormaPagamento() != FormaPagamento.FIADO)
-            throw new RegraNegocioException("Esta venda não é fiado");
-        if (venda.getStatusFiado() == StatusFiado.PAGO)
-            throw new RegraNegocioException("Esta venda já está paga");
+        if (venda.getFormaPagamento() != FormaPagamento.FIADO) {
+            throw new RegraNegocioException("Esta venda nao e fiado");
+        }
+        if (venda.getStatusFiado() == StatusFiado.PAGO) {
+            throw new RegraNegocioException("Esta venda ja esta paga");
+        }
+        if ("CANCELADA".equals(venda.getStatus())) {
+            throw new RegraNegocioException("Venda cancelada nao pode ser marcada como paga");
+        }
 
-        Cliente cliente = venda.getCliente();
-        BigDecimal novoSaldo = cliente.getSaldoDevedor().subtract(venda.getValorTotal());
-        cliente.setSaldoDevedor(novoSaldo.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : novoSaldo);
-        clienteRepository.save(cliente);
-
+        removerSaldoFiado(venda);
         venda.setStatusFiado(StatusFiado.PAGO);
         return vendaRepository.save(venda);
     }
@@ -158,23 +157,12 @@ public class VendaService {
     public Venda cancelar(Long id, String motivo, Long funcionarioId) {
         Venda venda = buscarPorId(id);
 
-        if ("CANCELADA".equals(venda.getStatus()))
-            throw new RegraNegocioException("Venda já está cancelada");
-
-        for (ItemVenda item : venda.getItens()) {
-            estoqueService.registrar(item.getProduto(), TipoMovimentacao.ENTRADA,
-                item.getQuantidade(), MotivoMovimentacao.DEVOLUCAO,
-                venda.getId(), "Cancelamento da venda #" + venda.getId());
+        if ("CANCELADA".equals(venda.getStatus())) {
+            throw new RegraNegocioException("Venda ja esta cancelada");
         }
 
-        if (venda.getFormaPagamento() == FormaPagamento.FIADO
-            && venda.getCliente() != null
-            && venda.getStatusFiado() != StatusFiado.PAGO) {
-            Cliente cliente = venda.getCliente();
-            BigDecimal novoSaldo = cliente.getSaldoDevedor().subtract(venda.getValorTotal());
-            cliente.setSaldoDevedor(novoSaldo.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : novoSaldo);
-            clienteRepository.save(cliente);
-        }
+        estornarEstoque(venda, "Cancelamento da venda #" + venda.getId());
+        removerSaldoFiado(venda);
 
         Funcionario responsavel = funcionarioId != null
             ? funcionarioRepository.findById(funcionarioId).orElse(null)
@@ -190,4 +178,93 @@ public class VendaService {
 
         return vendaRepository.save(venda);
     }
+
+    private DadosVenda montarDadosVenda(VendaRequest dto) {
+        Funcionario funcionario = funcionarioRepository.findById(dto.funcionarioId())
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                "Funcionario " + dto.funcionarioId() + " nao encontrado"));
+
+        Cliente cliente = resolverCliente(dto);
+        List<ItemVenda> itens = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (VendaRequest.ItemVendaRequest itemDto : dto.itens()) {
+            Produto produto = produtoRepository.findById(itemDto.produtoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                    "Produto " + itemDto.produtoId() + " nao encontrado"));
+            if (!produto.isAtivo()) {
+                throw new RegraNegocioException("Produto '" + produto.getNome() + "' esta inativo");
+            }
+
+            BigDecimal subtotal = produto.getPrecoUnitario().multiply(itemDto.quantidade());
+            itens.add(ItemVenda.builder()
+                .produto(produto)
+                .quantidade(itemDto.quantidade())
+                .precoUnitario(produto.getPrecoUnitario())
+                .subtotal(subtotal)
+                .build());
+            total = total.add(subtotal);
+        }
+
+        return new DadosVenda(funcionario, cliente, itens, total);
+    }
+
+    private Cliente resolverCliente(VendaRequest dto) {
+        if (dto.formaPagamento() != FormaPagamento.FIADO) {
+            return dto.clienteId() == null
+                ? null
+                : clienteRepository.findById(dto.clienteId())
+                    .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Cliente " + dto.clienteId() + " nao encontrado"));
+        }
+
+        if (dto.clienteId() == null) {
+            throw new RegraNegocioException("Venda fiado exige cliente cadastrado (RN01)");
+        }
+
+        Cliente cliente = clienteRepository.findById(dto.clienteId())
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                "Cliente " + dto.clienteId() + " nao encontrado"));
+
+        if (Boolean.TRUE.equals(cliente.getNegativado())) {
+            throw new RegraNegocioException("Cliente negativado no Serasa: venda fiado bloqueada (RN02/RN03)");
+        }
+
+        return cliente;
+    }
+
+    private void registrarSaidaEstoque(Venda venda, String observacao) {
+        for (ItemVenda item : venda.getItens()) {
+            estoqueService.registrar(item.getProduto(), TipoMovimentacao.SAIDA,
+                item.getQuantidade(), MotivoMovimentacao.VENDA, venda.getId(), observacao);
+        }
+    }
+
+    private void estornarEstoque(Venda venda, String observacao) {
+        for (ItemVenda item : venda.getItens()) {
+            estoqueService.registrar(item.getProduto(), TipoMovimentacao.ENTRADA,
+                item.getQuantidade(), MotivoMovimentacao.DEVOLUCAO, venda.getId(), observacao);
+        }
+    }
+
+    private void adicionarSaldoFiado(Venda venda) {
+        if (venda.getFormaPagamento() == FormaPagamento.FIADO && venda.getCliente() != null) {
+            Cliente cliente = venda.getCliente();
+            cliente.setSaldoDevedor(cliente.getSaldoDevedor().add(venda.getValorTotal()));
+            clienteRepository.save(cliente);
+        }
+    }
+
+    private void removerSaldoFiado(Venda venda) {
+        if (venda.getFormaPagamento() == FormaPagamento.FIADO
+            && venda.getCliente() != null
+            && venda.getStatusFiado() != StatusFiado.PAGO) {
+            Cliente cliente = venda.getCliente();
+            BigDecimal novoSaldo = cliente.getSaldoDevedor().subtract(venda.getValorTotal());
+            cliente.setSaldoDevedor(novoSaldo.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : novoSaldo);
+            clienteRepository.save(cliente);
+        }
+    }
+
+    private record DadosVenda(Funcionario funcionario, Cliente cliente, List<ItemVenda> itens, BigDecimal total) {}
 }

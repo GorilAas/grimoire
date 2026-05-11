@@ -8,8 +8,19 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface VendaRepository extends JpaRepository<Venda, Long> {
+
+    @Query("""
+            SELECT DISTINCT v FROM Venda v
+            LEFT JOIN FETCH v.cliente
+            LEFT JOIN FETCH v.funcionario
+            LEFT JOIN FETCH v.itens i
+            LEFT JOIN FETCH i.produto
+            WHERE v.id = :id
+            """)
+    Optional<Venda> buscarPorIdCompleto(@Param("id") Long id);
 
     @Query("""
             SELECT DISTINCT v FROM Venda v

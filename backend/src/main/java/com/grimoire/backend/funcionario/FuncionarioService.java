@@ -1,7 +1,6 @@
 package com.grimoire.backend.funcionario;
 
 import com.grimoire.backend.funcionario.dto.FuncionarioRequest;
-import com.grimoire.backend.shared.enums.Cargo;
 import com.grimoire.backend.shared.exception.RecursoNaoEncontradoException;
 import com.grimoire.backend.shared.exception.RegraNegocioException;
 import com.grimoire.backend.usuario.Usuario;
@@ -26,7 +25,7 @@ public class FuncionarioService {
     public Funcionario criar(FuncionarioRequest dto) {
         Funcionario funcionario = Funcionario.builder()
                 .nome(dto.nome())
-                .cargo(dto.cargo())
+                .cargo(normalizarCargo(dto.cargo()))
                 .telefone(dto.telefone())
                 .endereco(dto.endereco())
                 .telefoneEmergencia(dto.telefoneEmergencia())
@@ -43,7 +42,14 @@ public class FuncionarioService {
     public Funcionario buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
-                        "Funcionário " + id + " não encontrado"));
+                        "Funcionario " + id + " nao encontrado"));
+    }
+
+    @Transactional(readOnly = true)
+    public Funcionario buscarPorUsuarioId(Long usuarioId) {
+        return repository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new RegraNegocioException(
+                        "Nenhum funcionario vinculado a este usuario. Contate o administrador."));
     }
 
     @Transactional(readOnly = true)
@@ -57,40 +63,65 @@ public class FuncionarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<Funcionario> listarPorCargo(Cargo cargo) {
-        return repository.listarAtivosPorCargo(cargo);
+    public List<Funcionario> listarPorCargo(String cargo) {
+        return repository.listarAtivosPorCargo(normalizarCargo(cargo));
     }
 
     public Funcionario atualizar(Long id, FuncionarioRequest dto) {
         Funcionario funcionario = buscarPorId(id);
         funcionario.setNome(dto.nome());
-        funcionario.setCargo(dto.cargo());
+        funcionario.setCargo(normalizarCargo(dto.cargo()));
         funcionario.setTelefone(dto.telefone());
         funcionario.setEndereco(dto.endereco());
         funcionario.setTelefoneEmergencia(dto.telefoneEmergencia());
         funcionario.setDataAdmissao(dto.dataAdmissao());
         funcionario.setDataNascimento(dto.dataNascimento());
-        if (dto.cargaHorariaDiaria() != null)
+        if (dto.cargaHorariaDiaria() != null) {
             funcionario.setCargaHorariaDiaria(dto.cargaHorariaDiaria());
+        }
         return repository.save(funcionario);
     }
 
     public void inativar(Long id) {
         Funcionario funcionario = buscarPorId(id);
+        if (funcionario.getUsuario() != null && "ADMIN".equals(funcionario.getUsuario().getPerfil())) {
+            throw new RegraNegocioException("Nao e possivel inativar o administrador");
+        }
         funcionario.setAtivo(false);
     }
 
-    public Funcionario criarAcesso(Long id, String email, String senha, String perfil) {
+    public Funcionario criarAcesso(Long id, String email, String senha, String perfil, List<String> telasPermitidas) {
         Funcionario funcionario = buscarPorId(id);
 
         if (funcionario.getUsuario() != null) {
-            throw new RegraNegocioException("Funcionário já possui acesso cadastrado");
+            throw new RegraNegocioException("Funcionario ja possui acesso cadastrado");
         }
 
         String perfilEfetivo = perfil != null ? perfil : resolverPerfil(funcionario.getCargo());
+        String telas = normalizarTelas(telasPermitidas);
 
-        Usuario usuario = usuarioService.criar(funcionario.getNome(), email, senha, perfilEfetivo);
+        Usuario usuario = usuarioService.criar(funcionario.getNome(), email, senha, perfilEfetivo, telas);
         funcionario.setUsuario(usuario);
+        return repository.save(funcionario);
+    }
+
+    public Funcionario atualizarAcesso(Long id, String perfil, List<String> telasPermitidas) {
+        Funcionario funcionario = buscarPorId(id);
+
+        if (funcionario.getUsuario() == null) {
+            throw new RegraNegocioException("Funcionario nao possui acesso cadastrado");
+        }
+
+        Usuario usuario = funcionario.getUsuario();
+        if ("ADMIN".equals(usuario.getPerfil())) {
+            usuario.setTelasPermitidas(null);
+            return repository.save(funcionario);
+        }
+
+        if (perfil != null && !perfil.isBlank()) {
+            usuario.setPerfil(normalizarPerfil(perfil));
+        }
+        usuario.setTelasPermitidas(normalizarTelas(telasPermitidas));
         return repository.save(funcionario);
     }
 
@@ -98,11 +129,11 @@ public class FuncionarioService {
         Funcionario funcionario = buscarPorId(id);
 
         if (funcionario.getUsuario() == null) {
-            throw new RegraNegocioException("Funcionário não possui acesso cadastrado");
+            throw new RegraNegocioException("Funcionario nao possui acesso cadastrado");
         }
 
         if ("ADMIN".equals(funcionario.getUsuario().getPerfil())) {
-            throw new RegraNegocioException("Não é possível revogar o acesso do administrador");
+            throw new RegraNegocioException("Nao e possivel revogar o acesso do administrador");
         }
 
         Usuario usuario = funcionario.getUsuario();
@@ -111,11 +142,35 @@ public class FuncionarioService {
         repository.save(funcionario);
     }
 
-    private String resolverPerfil(Cargo cargo) {
-        return switch (cargo) {
-            case GERENTE  -> "GERENTE";
-            case ATENDENTE -> "ATENDENTE";
-            case PADEIRO   -> "PADEIRO";
+    private String resolverPerfil(String cargo) {
+        return switch (normalizarCargo(cargo)) {
+            case "GERENTE" -> "GERENTE";
+            case "PADEIRO" -> "PADEIRO";
+            default -> "ATENDENTE";
         };
+    }
+
+    private String normalizarCargo(String cargo) {
+        if (cargo == null || cargo.isBlank()) {
+            throw new RegraNegocioException("Cargo e obrigatorio");
+        }
+        return cargo.trim().toUpperCase();
+    }
+
+    private String normalizarPerfil(String perfil) {
+        return switch (perfil.trim().toUpperCase()) {
+            case "ADMIN", "GERENTE", "ATENDENTE", "PADEIRO" -> perfil.trim().toUpperCase();
+            default -> throw new RegraNegocioException("Perfil invalido");
+        };
+    }
+
+    private String normalizarTelas(List<String> telasPermitidas) {
+        if (telasPermitidas == null || telasPermitidas.isEmpty()) return null;
+        return telasPermitidas.stream()
+            .filter(tela -> tela != null && !tela.isBlank())
+            .map(String::trim)
+            .distinct()
+            .reduce((a, b) -> a + "," + b)
+            .orElse(null);
     }
 }

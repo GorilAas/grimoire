@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -16,10 +19,10 @@ public class AuthController {
     private final JwtService jwtService;
 
     public record LoginRequest(
-        @NotBlank(message = "Login é obrigatório")
+        @NotBlank(message = "Login e obrigatorio")
         String login,
 
-        @NotBlank(message = "Senha é obrigatória")
+        @NotBlank(message = "Senha e obrigatoria")
         String senha
     ) {}
 
@@ -28,7 +31,8 @@ public class AuthController {
         Long id,
         String nome,
         String login,
-        String perfil
+        String perfil,
+        List<String> telasPermitidas
     ) {}
 
     @PostMapping("/login")
@@ -42,7 +46,16 @@ public class AuthController {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getPerfil()
+                usuario.getPerfil(),
+                listarTelas(usuario.getTelasPermitidas())
         ));
+    }
+
+    private List<String> listarTelas(String valor) {
+        if (valor == null || valor.isBlank()) return List.of();
+        return Arrays.stream(valor.split(","))
+            .map(String::trim)
+            .filter(item -> !item.isBlank())
+            .toList();
     }
 }

@@ -21,21 +21,39 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (usuarioRepository.existsByEmail("admin")) {
-            log.info("Admin já existe — nenhuma ação necessária.");
+        var encoder = new BCryptPasswordEncoder();
+
+        var adminExistente = usuarioRepository.findByEmail("admin");
+        if (adminExistente.isPresent()) {
+            var admin = adminExistente.get();
+            if (!hashBcryptValido(admin.getSenhaHash())) {
+                admin.setSenhaHash(encoder.encode(adminSenha));
+                admin.setPerfil("ADMIN");
+                admin.setAtivo(true);
+                admin.setTelasPermitidas(null);
+                usuarioRepository.save(admin);
+                log.info("Conta admin existente corrigida com hash seguro.");
+                return;
+            }
+
+            log.info("Admin ja existe. Nenhuma acao necessaria.");
             return;
         }
 
-        var encoder = new BCryptPasswordEncoder();
         var admin = Usuario.builder()
                 .nome("Administrador")
                 .email("admin")
                 .senhaHash(encoder.encode(adminSenha))
                 .perfil("ADMIN")
+                .telasPermitidas(null)
                 .ativo(true)
                 .build();
 
         usuarioRepository.save(admin);
         log.info("Conta admin criada com sucesso.");
+    }
+
+    private boolean hashBcryptValido(String hash) {
+        return hash != null && (hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$"));
     }
 }

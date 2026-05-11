@@ -5,5 +5,6 @@ public enum MotivoMovimentacao {
     CADASTRO,
     EDICAO,
     AJUSTE_MANUAL,
+    COMPRA,
     DEVOLUCAO
 }

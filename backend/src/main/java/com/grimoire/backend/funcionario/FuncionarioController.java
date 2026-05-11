@@ -2,12 +2,12 @@ package com.grimoire.backend.funcionario;
 
 import com.grimoire.backend.funcionario.dto.FuncionarioRequest;
 import com.grimoire.backend.funcionario.dto.FuncionarioResponse;
-import com.grimoire.backend.shared.enums.Cargo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,15 +24,21 @@ public class FuncionarioController {
     }
 
     public record CriarAcessoRequest(
-        @NotBlank(message = "E-mail é obrigatório")
-        @Email(message = "E-mail inválido")
+        @NotBlank(message = "E-mail e obrigatorio")
+        @Email(message = "E-mail invalido")
         String email,
 
-        @NotBlank(message = "Senha é obrigatória")
-        @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
+        @NotBlank(message = "Senha e obrigatoria")
+        @Size(min = 6, message = "Senha deve ter no minimo 6 caracteres")
         String senha,
 
-        String perfil
+        String perfil,
+        List<String> telasPermitidas
+    ) {}
+
+    public record AtualizarAcessoRequest(
+        String perfil,
+        List<String> telasPermitidas
     ) {}
 
     @PostMapping
@@ -44,23 +50,23 @@ public class FuncionarioController {
 
     @GetMapping
     public List<FuncionarioResponse> listarAtivos() {
-        return service.listarAtivos().stream()
-                .map(FuncionarioResponse::from)
-                .toList();
+        return service.listarAtivos().stream().map(FuncionarioResponse::from).toList();
     }
 
     @GetMapping("/todos")
     public List<FuncionarioResponse> listarTodos() {
-        return service.listarTodos().stream()
-                .map(FuncionarioResponse::from)
-                .toList();
+        return service.listarTodos().stream().map(FuncionarioResponse::from).toList();
     }
 
     @GetMapping("/cargo/{cargo}")
-    public List<FuncionarioResponse> listarPorCargo(@PathVariable Cargo cargo) {
-        return service.listarPorCargo(cargo).stream()
-                .map(FuncionarioResponse::from)
-                .toList();
+    public List<FuncionarioResponse> listarPorCargo(@PathVariable String cargo) {
+        return service.listarPorCargo(cargo).stream().map(FuncionarioResponse::from).toList();
+    }
+
+    @GetMapping("/me")
+    public FuncionarioResponse buscarMeuFuncionario(Authentication auth) {
+        Long usuarioId = (Long) auth.getPrincipal();
+        return FuncionarioResponse.from(service.buscarPorUsuarioId(usuarioId));
     }
 
     @GetMapping("/{id}")
@@ -69,8 +75,7 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public FuncionarioResponse atualizar(@PathVariable Long id,
-                                          @Valid @RequestBody FuncionarioRequest dto) {
+    public FuncionarioResponse atualizar(@PathVariable Long id, @Valid @RequestBody FuncionarioRequest dto) {
         return FuncionarioResponse.from(service.atualizar(id, dto));
     }
 
@@ -84,8 +89,15 @@ public class FuncionarioController {
     public ResponseEntity<FuncionarioResponse> criarAcesso(
             @PathVariable Long id,
             @Valid @RequestBody CriarAcessoRequest dto) {
-        Funcionario f = service.criarAcesso(id, dto.email(), dto.senha(), dto.perfil());
+        Funcionario f = service.criarAcesso(id, dto.email(), dto.senha(), dto.perfil(), dto.telasPermitidas());
         return ResponseEntity.ok(FuncionarioResponse.from(f));
+    }
+
+    @PatchMapping("/{id}/acesso")
+    public FuncionarioResponse atualizarAcesso(
+            @PathVariable Long id,
+            @RequestBody AtualizarAcessoRequest dto) {
+        return FuncionarioResponse.from(service.atualizarAcesso(id, dto.perfil(), dto.telasPermitidas()));
     }
 
     @DeleteMapping("/{id}/acesso")

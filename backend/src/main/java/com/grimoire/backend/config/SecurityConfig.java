@@ -31,9 +31,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
 
+                .requestMatchers(HttpMethod.GET, "/api/cargos/**")
+                    .hasAnyRole("ADMIN", "GERENTE", "ATENDENTE", "PADEIRO")
+                .requestMatchers("/api/cargos/**").hasAnyRole("ADMIN", "GERENTE")
+
                 // ── Funcionários ──────────────────────────────────────────
                 .requestMatchers(HttpMethod.POST,   "/api/funcionarios/*/acesso").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/funcionarios/*/acesso").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/funcionarios/*/acesso").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/funcionarios/me").authenticated()
                 .requestMatchers("/api/funcionarios/**").hasAnyRole("ADMIN", "GERENTE")
 
                 // ── Categorias — GET para todos; mutações ADMIN/GERENTE ───

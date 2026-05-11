@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> handleNaoEncontrado(
             RecursoNaoEncontradoException e, HttpServletRequest req) {
-        log.warn("Recurso não encontrado [{}]: {}", req.getRequestURI(), e.getMessage());
+        log.warn("Recurso nao encontrado [{}]: {}", req.getRequestURI(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", 404,
@@ -34,29 +34,29 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Map<String, Object>> handleRotaNaoEncontrada(
             NoHandlerFoundException e, HttpServletRequest req) {
-        log.warn("Rota não encontrada: {} {}", req.getMethod(), req.getRequestURI());
+        log.warn("Rota nao encontrada: {} {}", req.getMethod(), req.getRequestURI());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", 404,
-                "mensagem", "Rota não encontrada: " + req.getMethod() + " " + req.getRequestURI()
+                "mensagem", "Rota nao encontrada: " + req.getMethod() + " " + req.getRequestURI()
         ));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Map<String, Object>> handleMetodoNaoPermitido(
             HttpRequestMethodNotSupportedException e, HttpServletRequest req) {
-        log.warn("Método não permitido: {} {}", req.getMethod(), req.getRequestURI());
+        log.warn("Metodo nao permitido: {} {}", req.getMethod(), req.getRequestURI());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", 405,
-                "mensagem", "Método " + req.getMethod() + " não permitido para esta rota"
+                "mensagem", "Metodo " + req.getMethod() + " nao permitido para esta rota"
         ));
     }
 
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<Map<String, Object>> handleRegraNegocio(
             RegraNegocioException e, HttpServletRequest req) {
-        log.warn("Regra de negócio violada [{}]: {}", req.getRequestURI(), e.getMessage());
+        log.warn("Regra de negocio violada [{}]: {}", req.getRequestURI(), e.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", 422,
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
                         f -> f.getDefaultMessage(),
                         (a, b) -> a
                 ));
-        log.warn("Validação falhou [{}]: {}", req.getRequestURI(), erros);
+        log.warn("Validacao falhou [{}]: {}", req.getRequestURI(), erros);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", 400,
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", 500,
-                "mensagem", "Erro interno — contate o suporte"
+                "mensagem", "Erro interno - contate o suporte"
         ));
     }
 }

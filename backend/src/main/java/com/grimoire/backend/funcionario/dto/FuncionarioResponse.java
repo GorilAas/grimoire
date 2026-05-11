@@ -1,17 +1,18 @@
 package com.grimoire.backend.funcionario.dto;
 
 import com.grimoire.backend.funcionario.Funcionario;
-import com.grimoire.backend.shared.enums.Cargo;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Arrays;
+import java.util.List;
 
 public record FuncionarioResponse(
     Long id,
     String nome,
-    Cargo cargo,
+    String cargo,
     String telefone,
     String endereco,
     String telefoneEmergencia,
@@ -24,13 +25,23 @@ public record FuncionarioResponse(
     LocalDateTime editadoEm,
     boolean possuiAcesso,
     String emailAcesso,
-    String perfil
+    String perfil,
+    List<String> telasPermitidas
 ) {
     public static FuncionarioResponse from(Funcionario f) {
         boolean temAcesso = f.getUsuario() != null;
         Integer idade = f.getDataNascimento() != null
             ? Period.between(f.getDataNascimento(), LocalDate.now()).getYears()
             : null;
+
+        List<String> telas = List.of();
+        if (temAcesso && f.getUsuario().getTelasPermitidas() != null && !f.getUsuario().getTelasPermitidas().isBlank()) {
+            telas = Arrays.stream(f.getUsuario().getTelasPermitidas().split(","))
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .toList();
+        }
+
         return new FuncionarioResponse(
             f.getId(),
             f.getNome(),
@@ -47,7 +58,8 @@ public record FuncionarioResponse(
             f.getEditadoEm(),
             temAcesso,
             temAcesso ? f.getUsuario().getEmail() : null,
-            temAcesso ? f.getUsuario().getPerfil() : null
+            temAcesso ? f.getUsuario().getPerfil() : null,
+            telas
         );
     }
 }

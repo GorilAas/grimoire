@@ -1,506 +1,272 @@
-# Pão FresQUIM — Documentação da API
+# Pão FresQUIM - Documentação da API
 
-**Backend:** Spring Boot 3.5 · Java 21 · PostgreSQL (Supabase)  
-**Base URL:** `http://localhost:8080`  
-**Autenticação:** JWT Bearer Token (obtido via `/api/auth/login`)  
-**Versão:** 2.0 — Mai/2026
+Backend Spring Boot 3.5, Java 21 e PostgreSQL/Supabase.  
+Base URL local: `http://localhost:8080`  
+Autenticação: JWT Bearer Token.  
+Validado em: 2026-05-10. Foram testadas 69 chamadas HTTP autenticadas e públicas.
 
----
+## Como rodar
 
-## Índice
+No backend:
 
-1. [Autenticação](#1-autenticação)
-2. [Categorias](#2-categorias)
-3. [Produtos](#3-produtos)
-4. [Estoque](#4-estoque)
-5. [Funcionários](#5-funcionários)
-6. [Clientes](#6-clientes)
-7. [Vendas](#7-vendas)
-8. [Caixa](#8-caixa)
-9. [Ponto Eletrônico](#9-ponto-eletrônico)
-10. [Perfis e Permissões](#10-perfis-e-permissões)
-11. [Padrão de Erros](#11-padrão-de-erros)
+```bash
+cd C:/Users/twitc/grimoire/backend
+bash start.sh
+```
 
----
+No frontend:
 
-## 1. Autenticação
+```bash
+cd C:/Users/twitc/grimoire/frontend
+npm run dev
+```
 
-Rota pública — não exige Bearer token.
+## Como usar no Postman
 
-### POST `/api/auth/login`
+1. Importe o arquivo `Pao-FresQUIM.postman_collection.json`.
+2. Rode `Auth / Login admin`.
+3. A collection salva o JWT automaticamente na variável `token`.
+4. As demais rotas usam `Authorization: Bearer {{token}}`.
 
-**Body:**
+Usuário admin padrão:
+
 ```json
 {
-  "login": "admin@paofresquim.com",
-  "senha": "Padaria@123"
+  "login": "admin",
+  "senha": "FresQUIM@2025!"
 }
 ```
 
-**Resposta 200:**
+## Perfis de acesso
+
+- ADMIN: acesso total. Não deve perder acesso nem ser removido.
+- GERENTE: acesso operacional amplo, incluindo funcionários, caixa, estoque, cargos e configurações.
+- ATENDENTE: clientes, vendas e produtos conforme telas liberadas.
+- PADEIRO: leitura de produtos e telas liberadas.
+
+## Padrao de erro
+
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "id": 1,
-  "nome": "Administrador",
-  "login": "admin@paofresquim.com",
-  "perfil": "ADMIN"
+  "timestamp": "2026-05-10T12:00:00",
+  "status": 422,
+  "mensagem": "Regra de negocio violada"
 }
 ```
 
-> O token JWT expira em **24 horas** e deve ser enviado no header:  
-> `Authorization: Bearer <token>`
+Status principais:
 
----
+| Status | Uso |
+|---|---|
+| 200 | Operação concluída com retorno |
+| 201 | Registro criado |
+| 204 | Operação concluída sem corpo |
+| 400 | JSON invalido ou validacao de campos |
+| 404 | Recurso ou rota não encontrada |
+| 405 | Método HTTP não permitido |
+| 422 | Regra de negocio violada |
+| 500 | Erro interno não esperado |
 
-## 2. Categorias
+## Endpoints
 
-Permissão de leitura: todos os perfis.  
-Mutações (criar/editar/excluir): **ADMIN, GERENTE**.
+### Health
 
-| Método   | Rota                   | Descrição          |
-|----------|------------------------|--------------------|
-| GET      | `/api/categorias`      | Listar todas       |
-| POST     | `/api/categorias`      | Criar categoria    |
-| PUT      | `/api/categorias/{id}` | Atualizar          |
-| DELETE   | `/api/categorias/{id}` | Excluir            |
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| GET | `/actuator/health` | Health | Verifica se o backend esta UP. |
 
-### Body (POST / PUT)
+### Auth
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| POST | `/api/auth/login` | Login admin | Autentica usuario e retorna token JWT. |
+
+### Cargos
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| GET | `/api/cargos` | Listar cargos ativos | Lista cargos ativos. |
+| GET | `/api/cargos/todos` | Listar todos os cargos | Lista cargos ativos e inativos. |
+| POST | `/api/cargos` | Criar cargo | Cria cargo do sistema. |
+| PUT | `/api/cargos/{{cargoId}}` | Atualizar cargo | Atualiza cargo. |
+| DELETE | `/api/cargos/{{cargoId}}` | Inativar cargo | Inativa cargo. |
+| PATCH | `/api/cargos/{{cargoId}}/reativar` | Reativar cargo | Reativa cargo. |
+
+### Categorias
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| GET | `/api/categorias` | Listar categorias | Lista categorias de produto. |
+| POST | `/api/categorias` | Criar categoria | Cria categoria. |
+| PUT | `/api/categorias/{{categoriaId}}` | Atualizar categoria | Atualiza categoria. |
+| DELETE | `/api/categorias/{{categoriaId}}` | Excluir categoria | Exclui categoria somente se não houver produto vinculado. |
+
+### Produtos
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| POST | `/api/produtos` | Criar produto | Cria produto com estoque inicial, custo, venda e categoria. |
+| GET | `/api/produtos` | Listar produtos ativos | Lista produtos ativos. |
+| GET | `/api/produtos/todos` | Listar todos os produtos | Lista produtos ativos e inativos. |
+| GET | `/api/produtos/{{produtoId}}` | Buscar produto por id | Busca produto por id. |
+| GET | `/api/produtos/código/7890000000011` | Buscar produto por código | Busca produto por código de barras. |
+| GET | `/api/produtos/busca?termo=Pao` | Buscar produtos por nome | Busca produtos ativos por trecho do nome. |
+| GET | `/api/produtos/abaixo-mínimo` | Produtos abaixo do mínimo | Lista produtos abaixo do estoque mínimo. |
+| GET | `/api/produtos/categoria/{{categoriaId}}` | Produtos por categoria | Lista produtos de uma categoria. |
+| PUT | `/api/produtos/{{produtoId}}` | Atualizar produto | Atualiza dados do produto. |
+| DELETE | `/api/produtos/{{produtoId}}` | Inativar produto | Inativa produto. |
+| PATCH | `/api/produtos/{{produtoId}}/reativar` | Reativar produto | Reativa produto. |
+
+### Estoque
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| GET | `/api/estoque/produto/{{produtoId}}` | Historico de estoque por produto | Lista movimentacoes de estoque do produto. |
+| POST | `/api/estoque/ajuste` | Ajuste manual de estoque | Registra entrada ou saida manual. |
+
+### Funcionários
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| POST | `/api/funcionarios` | Criar funcionário | Cria funcionário. |
+| GET | `/api/funcionarios` | Listar funcionários ativos | Lista funcionários ativos. |
+| GET | `/api/funcionarios/todos` | Listar todos os funcionários | Lista funcionários ativos e inativos. |
+| GET | `/api/funcionarios/cargo/ATENDENTE` | Buscar funcionário por cargo | Lista funcionários por cargo. |
+| GET | `/api/funcionarios/me` | Meu funcionário | Retorna funcionário vinculado ao usuario logado, quando existir. |
+| GET | `/api/funcionarios/{{funcionarioId}}` | Buscar funcionário por id | Busca funcionário por id. |
+| PUT | `/api/funcionarios/{{funcionarioId}}` | Atualizar funcionário | Atualiza funcionário. |
+| POST | `/api/funcionarios/{{funcionarioId}}/acesso` | Criar acesso funcionário | Cria usuario de acesso para funcionário. |
+| PATCH | `/api/funcionarios/{{funcionarioId}}/acesso` | Atualizar acesso funcionário | Atualiza perfil e telas permitidas. |
+| DELETE | `/api/funcionarios/{{funcionarioId}}/acesso` | Revogar acesso funcionário | Revoga acesso do funcionário. |
+| DELETE | `/api/funcionarios/{{funcionarioId}}` | Inativar funcionário | Inativa funcionário. |
+
+### Clientes
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| POST | `/api/clientes` | Criar cliente | Cria cliente e consulta mock do Serasa. |
+| GET | `/api/clientes` | Listar clientes ativos | Lista clientes ativos. |
+| GET | `/api/clientes/todos` | Listar todos os clientes | Lista clientes ativos e inativos. |
+| GET | `/api/clientes/fiado` | Clientes com fiado | Lista clientes com saldo devedor. |
+| GET | `/api/clientes/{{clienteId}}` | Buscar cliente por id | Busca cliente por id. |
+| GET | `/api/clientes/cpf/123.456.789-10` | Buscar cliente por CPF | Busca cliente por CPF. |
+| PUT | `/api/clientes/{{clienteId}}` | Atualizar cliente | Atualiza cliente. |
+| PATCH | `/api/clientes/{{clienteId}}/cpf` | Corrigir CPF | Corrige CPF e refaz validacao de negocio. |
+| DELETE | `/api/clientes/{{clienteId}}` | Inativar cliente | Inativa cliente se não houver saldo devedor. |
+| PATCH | `/api/clientes/{{clienteId}}/reativar` | Reativar cliente | Reativa cliente. |
+
+### Vendas
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| POST | `/api/vendas` | Registrar venda | Registra venda e baixa estoque. |
+| GET | `/api/vendas` | Listar vendas | Lista vendas. |
+| GET | `/api/vendas/{{vendaId}}` | Buscar venda por id | Busca venda por id. |
+| PUT | `/api/vendas/{{vendaId}}` | Atualizar venda PUT | Atualiza venda por PUT. |
+| PATCH | `/api/vendas/{{vendaId}}` | Atualizar venda PATCH | Atualiza venda por PATCH, usado pelo frontend. |
+| GET | `/api/vendas/cliente/{{clienteId}}` | Vendas por cliente | Historico de compras do cliente. |
+| GET | `/api/vendas/funcionario/{{funcionarioId}}` | Vendas por funcionário | Lista vendas de um funcionário. |
+| GET | `/api/vendas/forma/DINHEIRO` | Vendas por forma | Lista vendas por forma de pagamento. |
+| GET | `/api/vendas/período?dataInicio=2026-01-01&dataFim=2026-12-31` | Vendas por período | Lista vendas por período. |
+| GET | `/api/vendas/fiado/aberto` | Fiados em aberto | Lista vendas fiado pendentes. |
+| PATCH | `/api/vendas/{{vendaId}}/pagar` | Pagar fiado | Marca venda fiado como paga e abate saldo. |
+| PATCH | `/api/vendas/{{vendaId}}/cancelar` | Cancelar venda | Cancela venda, estorna estoque e ajusta fiado quando existir. |
+
+### Caixa
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| GET | `/api/caixa` | Listar caixas | Lista caixas. |
+| GET | `/api/caixa/aberto` | Caixa aberto | Retorna caixa aberto ou 204. |
+| POST | `/api/caixa/abrir` | Abrir caixa | Abre caixa do dia. |
+| GET | `/api/caixa/{{caixaId}}` | Buscar caixa por id | Busca caixa por id. |
+| PATCH | `/api/caixa/fechar` | Fechar caixa | Fecha caixa aberto. |
+
+### Ponto
+
+| Método | Rota | Nome | Uso |
+|---|---|---|---|
+| POST | `/api/ponto/bater` | Bater ponto | Funcionário logado bate o próprio ponto. Admin/Gerente pode passar funcionarioId. |
+| GET | `/api/ponto/hoje/{{funcionarioId}}` | Ponto hoje | Resumo do ponto de hoje. |
+| GET | `/api/ponto/resumo/{{funcionarioId}}?inicio=2026-05-01&fim=2026-05-10` | Resumo de ponto | Resumo diário no período. |
+| GET | `/api/ponto/período?inicio=2026-05-01&fim=2026-05-10` | Ponto por período | Resumo geral para Admin/Gerente. |
+| POST | `/api/ponto/ajuste` | Ajuste manual de ponto | Admin/Gerente registra ajuste manual. |
+
+## Corpos principais
+
+### Login
+
 ```json
-{ "nome": "Pães Doces" }
+{
+  "login": "admin",
+  "senha": "FresQUIM@2025!"
+}
 ```
 
-### Resposta
-```json
-{ "id": 1, "nome": "Pães Doces" }
-```
+### Produto
 
----
-
-## 3. Produtos
-
-Permissão: todos os perfis (leitura); **ADMIN / GERENTE** para mutações.
-
-| Método   | Rota                               | Descrição                          |
-|----------|------------------------------------|------------------------------------|
-| GET      | `/api/produtos`                    | Listar ativos                      |
-| GET      | `/api/produtos/todos`              | Listar todos (incl. inativos)      |
-| GET      | `/api/produtos/{id}`               | Buscar por ID                      |
-| GET      | `/api/produtos/codigo/{codigo}`    | Buscar por código de barras        |
-| GET      | `/api/produtos/busca?termo=`       | Buscar por nome (contém)           |
-| GET      | `/api/produtos/abaixo-minimo`      | Listar com estoque abaixo do mínimo|
-| GET      | `/api/produtos/categoria/{catId}`  | Listar por categoria               |
-| POST     | `/api/produtos`                    | Criar produto                      |
-| PUT      | `/api/produtos/{id}`               | Atualizar produto                  |
-| DELETE   | `/api/produtos/{id}`               | Inativar (soft delete)             |
-| PATCH    | `/api/produtos/{id}/reativar`      | Reativar produto inativo           |
-
-### Body (POST / PUT)
 ```json
 {
   "nome": "Pao Frances",
-  "descricao": "Pao crocante tradicional",
-  "precoUnitario": 0.75,
-  "precoCusto": 0.30,
-  "codigoBarras": "7891234560001",
-  "categoriaId": 1,
-  "quantidadeEstoque": 100,
+  "descricao": "Unidade tradicional",
+  "precoUnitario": 1.25,
+  "precoCusto": 0.55,
+  "codigoBarras": "7890000000011",
+  "categoriaId": "{{categoriaId}}",
+  "quantidadeEstoque": 120,
   "estoqueMinimo": 20
 }
 ```
 
-### Resposta
+### Venda
+
 ```json
 {
-  "id": 1,
-  "nome": "Pao Frances",
-  "descricao": "Pao crocante tradicional",
-  "precoUnitario": 0.75,
-  "precoCusto": 0.30,
-  "codigoBarras": "7891234560001",
-  "categoriaId": 1,
-  "categoriaNome": "Pães Salgados",
-  "quantidadeEstoque": 100,
-  "estoqueMinimo": 20,
-  "abaixoDoMinimo": false,
-  "ativo": true
-}
-```
-
-**Validações:**
-- `nome` obrigatório
-- `precoUnitario` obrigatório, positivo
-- `codigoBarras` único (se informado) → 422
-
----
-
-## 4. Estoque
-
-Permissão: **ADMIN, GERENTE**.
-
-| Método | Rota                          | Descrição                         |
-|--------|-------------------------------|-----------------------------------|
-| GET    | `/api/estoque/produto/{id}`   | Histórico de movimentações        |
-
-### Resposta (lista)
-```json
-[
-  {
-    "id": 1,
-    "produtoId": 1,
-    "produtoNome": "Pao Frances",
-    "tipo": "ENTRADA",
-    "quantidade": 50,
-    "motivo": "COMPRA",
-    "observacao": "Reposição",
-    "criadoEm": "2026-05-01T08:00:00"
-  }
-]
-```
-
-**Motivos disponíveis:** `COMPRA`, `VENDA`, `AJUSTE_MANUAL`, `PERDA`, `DEVOLUCAO`, `INVENTARIO`
-
----
-
-## 5. Funcionários
-
-Permissão: **ADMIN, GERENTE**.  
-Criar/revogar acesso (login): apenas **ADMIN**.
-
-| Método   | Rota                           | Descrição                        |
-|----------|--------------------------------|----------------------------------|
-| GET      | `/api/funcionarios`            | Listar ativos                    |
-| GET      | `/api/funcionarios/todos`      | Listar todos (incl. inativos)    |
-| GET      | `/api/funcionarios/{id}`       | Buscar por ID                    |
-| GET      | `/api/funcionarios/cargo/{c}`  | Filtrar por cargo                |
-| POST     | `/api/funcionarios`            | Criar funcionário                |
-| PUT      | `/api/funcionarios/{id}`       | Atualizar funcionário            |
-| DELETE   | `/api/funcionarios/{id}`       | Inativar (soft delete)           |
-| POST     | `/api/funcionarios/{id}/acesso`| Criar login de acesso — ADMIN    |
-| DELETE   | `/api/funcionarios/{id}/acesso`| Revogar login — ADMIN            |
-
-**Cargos disponíveis:** `GERENTE`, `ATENDENTE`, `PADEIRO`
-
-### Body — Criar / Atualizar
-```json
-{
-  "nome": "Carlos Silva",
-  "cargo": "GERENTE",
-  "telefone": "(11) 99999-0001",
-  "endereco": "Rua das Flores, 100",
-  "telefoneEmergencia": "(11) 98888-0001",
-  "dataAdmissao": "2023-01-15",
-  "dataNascimento": "1990-05-20",
-  "cargaHorariaDiaria": 8
-}
-```
-
-### Body — Criar acesso (`POST /{id}/acesso`)
-```json
-{
-  "email": "carlos@paofresquim.com",
-  "senha": "Padaria@123",
-  "perfil": "GERENTE"
-}
-```
-
-**Perfis disponíveis:** `ADMIN`, `GERENTE`, `ATENDENTE`, `PADEIRO`
-
-### Resposta
-```json
-{
-  "id": 1,
-  "nome": "Carlos Silva",
-  "cargo": "GERENTE",
-  "telefone": "(11) 99999-0001",
-  "dataAdmissao": "2023-01-15",
-  "dataNascimento": "1990-05-20",
-  "idadeAnos": 35,
-  "cargaHorariaDiaria": 8.0,
-  "ativo": true,
-  "usuarioEmail": "carlos@paofresquim.com",
-  "usuarioPerfil": "GERENTE"
-}
-```
-
----
-
-## 6. Clientes
-
-Permissão: **ADMIN, GERENTE, ATENDENTE**.
-
-| Método   | Rota                      | Descrição                         |
-|----------|---------------------------|-----------------------------------|
-| GET      | `/api/clientes`           | Listar ativos                     |
-| GET      | `/api/clientes/todos`     | Listar todos (incl. inativos)     |
-| GET      | `/api/clientes/{id}`      | Buscar por ID                     |
-| GET      | `/api/clientes/cpf/{cpf}` | Buscar por CPF                    |
-| GET      | `/api/clientes/fiado`     | Clientes com fiado em aberto      |
-| POST     | `/api/clientes`           | Criar cliente                     |
-| PUT      | `/api/clientes/{id}`      | Atualizar cliente                 |
-| PATCH    | `/api/clientes/{id}/cpf`  | Corrigir CPF                      |
-| DELETE   | `/api/clientes/{id}`      | Inativar (bloqueia se há fiado)   |
-| PATCH    | `/api/clientes/{id}/reativar` | Reativar cliente              |
-
-### Body — Criar / Atualizar
-```json
-{
-  "nome": "Maria Oliveira",
-  "cpf": "123.456.789-01",
-  "telefone": "(11) 99999-0010",
-  "email": "maria@email.com",
-  "endereco": "Rua das Rosas, 50"
-}
-```
-
-### Body — Corrigir CPF
-```json
-{ "cpf": "111.222.333-44" }
-```
-
-**Validações:**
-- CPF formato `000.000.000-00`
-- CPF único → 422
-- Inativar com fiado pendente → 422
-
----
-
-## 7. Vendas
-
-| Permissão         | Ação                                      |
-|-------------------|-------------------------------------------|
-| ADMIN, GERENTE, ATENDENTE | Registrar, consultar, pagar fiado |
-| ADMIN, GERENTE    | Cancelar venda                            |
-
-| Método   | Rota                            | Descrição                            |
-|----------|---------------------------------|--------------------------------------|
-| GET      | `/api/vendas`                   | Listar todas                         |
-| GET      | `/api/vendas/{id}`              | Buscar por ID                        |
-| GET      | `/api/vendas/cliente/{id}`      | Vendas de um cliente                 |
-| GET      | `/api/vendas/funcionario/{id}`  | Vendas de um funcionário             |
-| GET      | `/api/vendas/forma/{forma}`     | Por forma de pagamento               |
-| GET      | `/api/vendas/periodo`           | Por período (`?dataInicio=&dataFim=`)|
-| GET      | `/api/vendas/fiado/aberto`      | Fiados não quitados                  |
-| POST     | `/api/vendas`                   | Registrar venda                      |
-| PATCH    | `/api/vendas/{id}/pagar`        | Quitar fiado                         |
-| PATCH    | `/api/vendas/{id}/cancelar`     | Cancelar venda — ADMIN/GERENTE       |
-
-**Formas de pagamento:** `DINHEIRO`, `PIX`, `DEBITO`, `CREDITO`, `FIADO`
-
-### Body — Registrar venda
-```json
-{
-  "funcionarioId": 2,
-  "clienteId": 1,
-  "formaPagamento": "FIADO",
-  "itens": [
-    { "produtoId": 1, "quantidade": 10 },
-    { "produtoId": 2, "quantidade": 2.5 }
-  ]
-}
-```
-
-> `clienteId` obrigatório quando `formaPagamento = FIADO`
-
-### Body — Cancelar venda
-```json
-{ "motivo": "Produto devolvido pelo cliente" }
-```
-
-> O corpo é opcional. O funcionário responsável pelo cancelamento é resolvido automaticamente via JWT — não é necessário enviar `funcionarioId`.
-
-### Resposta
-```json
-{
-  "id": 1,
-  "clienteId": 1,
-  "clienteNome": "Maria Oliveira",
-  "funcionarioId": 2,
-  "funcionarioNome": "Carlos Silva",
-  "valorTotal": 8.25,
-  "formaPagamento": "FIADO",
-  "statusFiado": "PENDENTE",
-  "status": "ATIVA",
-  "motivoCancelamento": null,
-  "canceladoEm": null,
-  "dataVenda": "2026-05-03T10:30:00",
-  "notaFiscalEmitida": false,
+  "funcionarioId": "{{funcionarioId}}",
+  "clienteId": "{{clienteId}}",
+  "formaPagamento": "DINHEIRO",
   "itens": [
     {
-      "id": 1,
-      "produtoId": 1,
-      "produtoNome": "Pao Frances",
-      "quantidade": 10,
-      "precoUnitario": 0.75,
-      "subtotal": 7.50
+      "produtoId": "{{produtoId}}",
+      "quantidade": 2
     }
   ]
 }
 ```
 
-**Regras de negócio:**
-- RN01: FIADO exige `clienteId`
-- RN02: cliente negativado (fiado anterior em aberto) não pode fazer novo fiado
-- Cancelamento: o backend registra automaticamente o funcionário via token JWT
-- Estoque é decrementado ao registrar e restaurado ao cancelar
+### Ajuste manual de estoque
 
----
-
-## 8. Caixa
-
-Permissão: **ADMIN, GERENTE**.  
-Apenas um caixa pode estar `ABERTO` por vez.
-
-| Método   | Rota                | Descrição                                    |
-|----------|---------------------|----------------------------------------------|
-| GET      | `/api/caixa`        | Listar todos os caixas (histórico)            |
-| GET      | `/api/caixa/aberto` | Caixa aberto no momento (204 se não há nenhum)|
-| GET      | `/api/caixa/{id}`   | Buscar por ID                                |
-| POST     | `/api/caixa/abrir`  | Abrir caixa                                  |
-| PATCH    | `/api/caixa/fechar` | Fechar caixa aberto                          |
-
-### Body — Abrir caixa
 ```json
 {
-  "funcionarioId": 1,
-  "valorAbertura": 150.00,
-  "observacoes": "Troco inicial do dia"
-}
-```
-
-### Body — Fechar caixa
-```json
-{
-  "valorFechamento": 2345.50,
-  "observacoes": "Fechamento normal"
-}
-```
-
-### Resposta
-```json
-{
-  "id": 1,
-  "funcionarioId": 1,
-  "funcionarioNome": "Carlos Silva",
-  "abertoEm": "2026-05-03T08:00:00",
-  "fechadoEm": null,
-  "valorAbertura": 150.00,
-  "valorFechamento": null,
-  "observacoes": "Troco inicial do dia",
-  "status": "ABERTO"
-}
-```
-
-**Status:** `ABERTO`, `FECHADO`
-
-> `GET /api/caixa/aberto` retorna **204 No Content** se nenhum caixa estiver aberto.
-
----
-
-## 9. Ponto Eletrônico
-
-| Permissão            | Ação                                      |
-|----------------------|-------------------------------------------|
-| Todos autenticados   | Bater ponto, consultar próprios registros |
-| ADMIN, GERENTE       | Ver todos, ajuste manual, relatório       |
-
-| Método   | Rota                            | Descrição                                   |
-|----------|---------------------------------|---------------------------------------------|
-| POST     | `/api/ponto/bater`              | Registrar entrada/saída                     |
-| GET      | `/api/ponto/hoje/{funcId}`      | Registros de hoje de um funcionário         |
-| GET      | `/api/ponto/resumo/{funcId}`    | Resumo por período (`?inicio=&fim=`)        |
-| GET      | `/api/ponto/periodo`            | Todos os registros por período — ADMIN/GERENTE |
-| POST     | `/api/ponto/ajuste`             | Ajuste manual — ADMIN/GERENTE               |
-
-### Body — Bater ponto
-```json
-{ "funcionarioId": null }
-```
-
-> `funcionarioId` pode ser `null` — nesse caso o backend resolve pelo JWT (o próprio funcionário). ADMIN/GERENTE podem passar o ID de outro funcionário para bater o ponto dele.
-
-### Body — Ajuste manual
-```json
-{
-  "funcionarioId": 2,
-  "momento": "2026-05-01T08:00:00",
+  "produtoId": "{{produtoId}}",
   "tipo": "ENTRADA",
-  "observacao": "Esqueceu de bater na entrada"
+  "quantidade": 10,
+  "motivo": "AJUSTE_MANUAL",
+  "observacao": "Ajuste manual de conferencia"
 }
 ```
 
-**Tipos:** `ENTRADA`, `SAIDA`
+### Ajuste manual de ponto
 
-### Resposta — Registro
 ```json
 {
-  "id": 42,
-  "funcionarioId": 2,
-  "funcionarioNome": "Carlos Silva",
+  "funcionarioId": "{{funcionarioId}}",
+  "momento": "2026-05-09T08:00:00",
   "tipo": "ENTRADA",
-  "momento": "2026-05-03T08:05:00",
-  "ajusteManual": false
+  "observacao": "Ajuste autorizado pelo gerente"
 }
 ```
 
-### Resposta — Resumo por dia
-```json
-[
-  {
-    "data": "2026-05-03",
-    "horasTrabalhadas": "08:05",
-    "horasTrabalhadasDecimal": 8.08,
-    "horasEsperadasDecimal": 8.0,
-    "saldoDecimal": 0.08
-  }
-]
-```
+## Regras importantes
 
----
+- Venda FIADO exige cliente.
+- Venda cancelada estorna estoque e ajusta saldo do fiado quando existir.
+- Produto inativo não deve ser vendido.
+- Categoria com produto vinculado não pode ser excluida.
+- Somente um caixa pode ficar ABERTO ao mesmo tempo.
+- Ponto não permite duas ENTRADAS seguidas nem duas SAIDAS seguidas para o mesmo funcionário no dia.
+- ADMIN e GERENTE podem ver/ajustar ponto de todos. Funcionários batem o próprio ponto.
+- Estoque nunca deve ficar negativo.
+- Cargo pode ser inativado e reativado.
 
-## 10. Perfis e Permissões
 
-| Recurso                        | PADEIRO | ATENDENTE | GERENTE | ADMIN |
-|--------------------------------|:-------:|:---------:|:-------:|:-----:|
-| Auth (login)                   | ✔       | ✔         | ✔       | ✔     |
-| Produtos (leitura)             | ✔       | ✔         | ✔       | ✔     |
-| Produtos (mutações)            |         |           | ✔       | ✔     |
-| Categorias (leitura)           | ✔       | ✔         | ✔       | ✔     |
-| Categorias (mutações)          |         |           | ✔       | ✔     |
-| Estoque                        |         |           | ✔       | ✔     |
-| Clientes                       |         | ✔         | ✔       | ✔     |
-| Vendas (registrar, consultar)  |         | ✔         | ✔       | ✔     |
-| Vendas (cancelar)              |         |           | ✔       | ✔     |
-| Caixa                          |         |           | ✔       | ✔     |
-| Funcionários                   |         |           | ✔       | ✔     |
-| Funcionários (acesso)          |         |           |         | ✔     |
-| Ponto (bater / ver próprio)    | ✔       | ✔         | ✔       | ✔     |
-| Ponto (todos / ajuste)         |         |           | ✔       | ✔     |
-
----
-
-## 11. Padrão de Erros
-
-Todas as respostas de erro seguem o formato:
-
-```json
-{
-  "status": 422,
-  "erro": "Regra de negócio violada",
-  "mensagem": "FIADO exige que um cliente seja informado.",
-  "timestamp": "2026-05-03T10:30:00"
-}
-```
-
-| Código | Situação                                              |
-|--------|-------------------------------------------------------|
-| 400    | Validação de campos (campo obrigatório, formato, etc) |
-| 401    | Token ausente ou inválido                             |
-| 403    | Perfil sem permissão para a ação                      |
-| 404    | Recurso não encontrado                                |
-| 422    | Regra de negócio violada                              |
-| 500    | Erro interno inesperado                               |
-
----
-
-*Documentação gerada em 03/05/2026 · Pão FresQUIM v1.0*

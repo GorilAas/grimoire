@@ -31,6 +31,9 @@ public class Usuario {
     @Builder.Default
     private String perfil = "USUARIO";
 
+    @Column(name = "telas_permitidas", columnDefinition = "TEXT")
+    private String telasPermitidas;
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean ativo = true;
@@ -39,7 +42,7 @@ public class Usuario {
     private LocalDateTime criadoEm;
 
     @PrePersist
-    void onCreate() {
+    void aoCriar() {
         this.criadoEm = LocalDateTime.now();
     }
 }

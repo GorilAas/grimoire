@@ -16,8 +16,13 @@ public class UsuarioService {
 
     @Transactional
     public Usuario criar(String nome, String email, String senha, String perfil) {
+        return criar(nome, email, senha, perfil, null);
+    }
+
+    @Transactional
+    public Usuario criar(String nome, String email, String senha, String perfil, String telasPermitidas) {
         if (repository.existsByEmail(email)) {
-            throw new RegraNegocioException("E-mail já cadastrado");
+            throw new RegraNegocioException("E-mail ja cadastrado");
         }
 
         Usuario usuario = Usuario.builder()
@@ -25,6 +30,7 @@ public class UsuarioService {
                 .email(email)
                 .senhaHash(encoder.encode(senha))
                 .perfil(perfil != null ? perfil : "USUARIO")
+                .telasPermitidas(telasPermitidas)
                 .ativo(true)
                 .build();
 
@@ -34,14 +40,14 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public Usuario autenticar(String email, String senha) {
         Usuario usuario = repository.findByEmail(email)
-                .orElseThrow(() -> new RegraNegocioException("E-mail ou senha inválidos"));
+                .orElseThrow(() -> new RegraNegocioException("E-mail ou senha invalidos"));
 
         if (!Boolean.TRUE.equals(usuario.getAtivo())) {
-            throw new RegraNegocioException("Usuário inativo");
+            throw new RegraNegocioException("Usuario inativo");
         }
 
-        if (!encoder.matches(senha, usuario.getSenhaHash())) {
-            throw new RegraNegocioException("E-mail ou senha inválidos");
+        if (!senhaConfere(senha, usuario.getSenhaHash())) {
+            throw new RegraNegocioException("E-mail ou senha invalidos");
         }
 
         return usuario;
@@ -50,13 +56,21 @@ public class UsuarioService {
     @Transactional
     public void alterarSenha(Long id, String senhaAtual, String novaSenha) {
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário " + id + " não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario " + id + " nao encontrado"));
 
-        if (!encoder.matches(senhaAtual, usuario.getSenhaHash())) {
+        if (!senhaConfere(senhaAtual, usuario.getSenhaHash())) {
             throw new RegraNegocioException("Senha atual incorreta");
         }
 
         usuario.setSenhaHash(encoder.encode(novaSenha));
         repository.save(usuario);
+    }
+
+    private boolean senhaConfere(String senha, String hash) {
+        try {
+            return encoder.matches(senha, hash);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

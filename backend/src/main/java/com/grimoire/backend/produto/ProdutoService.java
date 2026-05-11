@@ -32,7 +32,7 @@ public class ProdutoService {
 
     public Produto criar(ProdutoRequest dto) {
         if (dto.codigoBarras() != null && repository.existsByCodigoBarras(dto.codigoBarras())) {
-            throw new RegraNegocioException("Código de barras já cadastrado");
+            throw new RegraNegocioException("Codigo de barras ja cadastrado");
         }
 
         Categoria categoria = resolverCategoria(dto.categoriaId());
@@ -51,38 +51,54 @@ public class ProdutoService {
 
         Produto salvo = repository.save(produto);
 
-        estoqueService.registrar(salvo, TipoMovimentacao.ENTRADA, BigDecimal.ONE,
-            MotivoMovimentacao.CADASTRO, null, "Cadastro do produto");
+        BigDecimal estoqueInicial = dto.quantidadeEstoque() != null
+            ? dto.quantidadeEstoque()
+            : BigDecimal.ZERO;
 
-        return salvo;
+        if (estoqueInicial.compareTo(BigDecimal.ZERO) > 0) {
+            estoqueService.registrar(salvo, TipoMovimentacao.ENTRADA, estoqueInicial,
+                MotivoMovimentacao.CADASTRO, null, "Estoque inicial do produto");
+        }
+
+        return buscarPorId(salvo.getId());
     }
 
     @Transactional(readOnly = true)
     public Produto buscarPorId(Long id) {
-        return repository.findById(id)
-            .orElseThrow(() -> new RecursoNaoEncontradoException("Produto " + id + " não encontrado"));
+        return repository.buscarPorIdCompleto(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Produto " + id + " nao encontrado"));
     }
 
     @Transactional(readOnly = true)
     public Produto buscarPorCodigoBarras(String codigoBarras) {
         return repository.findByCodigoBarras(codigoBarras)
-            .orElseThrow(() -> new RecursoNaoEncontradoException("Produto com código " + codigoBarras + " não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Produto com codigo " + codigoBarras + " nao encontrado"));
     }
 
     @Transactional(readOnly = true)
-    public List<Produto> listarAtivos() { return repository.listarAtivos(); }
+    public List<Produto> listarAtivos() {
+        return repository.listarAtivos();
+    }
 
     @Transactional(readOnly = true)
-    public List<Produto> listarTodos() { return repository.listarTodos(); }
+    public List<Produto> listarTodos() {
+        return repository.listarTodos();
+    }
 
     @Transactional(readOnly = true)
-    public List<Produto> buscarPorNome(String termo) { return repository.buscarPorNome(termo); }
+    public List<Produto> buscarPorNome(String termo) {
+        return repository.buscarPorNome(termo);
+    }
 
     @Transactional(readOnly = true)
-    public List<Produto> listarAbaixoDoMinimo() { return repository.listarAbaixoDoMinimo(); }
+    public List<Produto> listarAbaixoDoMinimo() {
+        return repository.listarAbaixoDoMinimo();
+    }
 
     @Transactional(readOnly = true)
-    public List<Produto> listarPorCategoria(Long categoriaId) { return repository.listarPorCategoria(categoriaId); }
+    public List<Produto> listarPorCategoria(Long categoriaId) {
+        return repository.listarPorCategoria(categoriaId);
+    }
 
     public Produto atualizar(Long id, ProdutoRequest dto) {
         Produto produto = buscarPorId(id);
@@ -90,7 +106,7 @@ public class ProdutoService {
         if (dto.codigoBarras() != null
             && !dto.codigoBarras().equals(produto.getCodigoBarras())
             && repository.existsByCodigoBarras(dto.codigoBarras())) {
-            throw new RegraNegocioException("Código de barras já cadastrado para outro produto");
+            throw new RegraNegocioException("Codigo de barras ja cadastrado para outro produto");
         }
 
         produto.setNome(dto.nome());
@@ -105,26 +121,26 @@ public class ProdutoService {
 
         estoqueService.registrar(salvo, TipoMovimentacao.ENTRADA,
             BigDecimal.ZERO.setScale(3), MotivoMovimentacao.EDICAO,
-            null, "Edição — preço: " + dto.precoUnitario());
+            null, "Edicao - preco: " + dto.precoUnitario());
 
-        return salvo;
+        return buscarPorId(salvo.getId());
     }
 
     public void inativar(Long id) {
         Produto produto = buscarPorId(id);
-        if (!produto.isAtivo()) throw new RegraNegocioException("Produto já está inativo");
+        if (!produto.isAtivo()) throw new RegraNegocioException("Produto ja esta inativo");
         produto.setAtivo(false);
     }
 
     public void reativar(Long id) {
         Produto produto = buscarPorId(id);
-        if (produto.isAtivo()) throw new RegraNegocioException("Produto já está ativo");
+        if (produto.isAtivo()) throw new RegraNegocioException("Produto ja esta ativo");
         produto.setAtivo(true);
     }
 
     private Categoria resolverCategoria(Long categoriaId) {
         if (categoriaId == null) return null;
         return categoriaRepository.findById(categoriaId)
-            .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria " + categoriaId + " não encontrada"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria " + categoriaId + " nao encontrada"));
     }
 }

@@ -43,6 +43,16 @@ public class VendaController {
         return VendaResponse.from(service.buscarPorId(id));
     }
 
+    @PutMapping("/{id}")
+    public VendaResponse atualizar(@PathVariable Long id, @Valid @RequestBody VendaRequest dto) {
+        return VendaResponse.from(service.atualizar(id, dto));
+    }
+
+    @PatchMapping("/{id}")
+    public VendaResponse atualizarParcial(@PathVariable Long id, @Valid @RequestBody VendaRequest dto) {
+        return VendaResponse.from(service.atualizar(id, dto));
+    }
+
     @GetMapping("/cliente/{clienteId}")
     public List<VendaResponse> listarPorCliente(@PathVariable Long clienteId) {
         return service.listarPorCliente(clienteId).stream()
