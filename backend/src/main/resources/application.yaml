@@ -91,3 +91,8 @@ spring:
       hibernate:
         connection:
           provider_disables_autocommit: true
+
+schedule:
+  buscar-fiados:
+    cron: "*/30 * * * * *"
+
