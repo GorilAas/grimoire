@@ -78,7 +78,7 @@ export default function Login() {
               type="text"
               value={loginStr}
               onChange={e => setLoginStr(e.target.value)}
-              placeholder="admin"
+              placeholder="login"
               autoComplete="username"
               required
               className="w-full px-3.5 py-2.5 rounded-[10px] text-[14px] text-[var(--texto-0)] bg-[var(--fundo-3)] border border-[var(--linha-suave)] outline-none transition-all duration-160 placeholder:text-[var(--texto-3)] focus:border-[var(--acento)] focus:ring-2 focus:ring-[oklch(0.48_0.07_145/0.2)]"

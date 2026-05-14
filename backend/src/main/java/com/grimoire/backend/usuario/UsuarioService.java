@@ -21,18 +21,56 @@ public class UsuarioService {
 
     @Transactional
     public Usuario criar(String nome, String email, String senha, String perfil, String telasPermitidas) {
-        if (repository.existsByEmail(email)) {
-            throw new RegraNegocioException("E-mail ja cadastrado");
+        String login = normalizarLogin(email);
+        if (repository.existsByEmail(login)) {
+            throw new RegraNegocioException("Login ja cadastrado");
         }
 
         Usuario usuario = Usuario.builder()
                 .nome(nome)
-                .email(email)
+                .email(login)
                 .senhaHash(encoder.encode(senha))
                 .perfil(perfil != null ? perfil : "USUARIO")
                 .telasPermitidas(telasPermitidas)
                 .ativo(true)
                 .build();
+
+        return repository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario atualizarAcesso(Usuario usuario, String email, String senha, String perfil, String telasPermitidas) {
+        boolean adminMaster = "admin".equalsIgnoreCase(usuario.getEmail());
+
+        if (email != null && !email.isBlank()) {
+            String login = normalizarLogin(email);
+            if (adminMaster && !"admin".equalsIgnoreCase(login)) {
+                throw new RegraNegocioException("Login do admin master nao pode ser alterado");
+            }
+            if (repository.existsByEmailAndIdNot(login, usuario.getId())) {
+                throw new RegraNegocioException("Login ja cadastrado");
+            }
+            usuario.setEmail(login);
+        }
+
+        if (senha != null && !senha.isBlank()) {
+            if (senha.length() < 6) {
+                throw new RegraNegocioException("Senha deve ter no minimo 6 caracteres");
+            }
+            usuario.setSenhaHash(encoder.encode(senha));
+        }
+
+        if (adminMaster) {
+            usuario.setPerfil("ADMIN");
+        } else if (perfil != null && !perfil.isBlank()) {
+            usuario.setPerfil(perfil);
+        }
+
+        if ("ADMIN".equals(usuario.getPerfil())) {
+            usuario.setTelasPermitidas(null);
+        } else {
+            usuario.setTelasPermitidas(telasPermitidas);
+        }
 
         return repository.save(usuario);
     }
@@ -72,5 +110,12 @@ public class UsuarioService {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    private String normalizarLogin(String login) {
+        if (login == null || login.isBlank()) {
+            throw new RegraNegocioException("Login e obrigatorio");
+        }
+        return login.trim();
     }
 }

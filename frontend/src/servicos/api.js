@@ -1,12 +1,21 @@
 import axios from 'axios'
 
+function resolverUrlApi() {
+  const host = window.location.hostname
+  if (host.endsWith('ngrok-free.app')) return ''
+  return import.meta.env.VITE_API_URL || ''
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '',
+  baseURL: resolverUrlApi(),
   headers: { 'Content-Type': 'application/json' },
 })
 
 // Injeta o token JWT em todas as requisições
 api.interceptors.request.use(config => {
+  const url = String(config.url || '')
+  if (url.includes('/api/auth/')) return config
+
   const token = localStorage.getItem('fresquim_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`

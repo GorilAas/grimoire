@@ -296,7 +296,8 @@ a { color: inherit; }
     min-width: 0;
   }
 
-  .trilha-cabecalho span:first-child {
+  .trilha-cabecalho span:first-child,
+  .trilha-cabecalho span:nth-child(2) {
     display: none;
   }
 

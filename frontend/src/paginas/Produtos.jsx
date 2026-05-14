@@ -89,6 +89,8 @@ export default function Produtos() {
   const total = filtrados.length
   const paginaDados = filtrados.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
   const totalAbaixoMinimo = lista.filter(p => p.abaixoDoMinimo).length
+  const totalAtivos = lista.filter(p => p.ativo).length
+  const totalInativos = lista.filter(p => !p.ativo).length
 
   function alterarFiltro(setter, valor) {
     setter(valor)
@@ -170,37 +172,52 @@ export default function Produtos() {
       />
 
       <div className="grid gap-2 md:grid-cols-3">
-        <select
-          className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none"
-          value={filtroStatus}
-          onChange={e => alterarFiltro(setFiltroStatus, e.target.value)}
-        >
-          <option value="todos">Todos os status</option>
-          <option value="ativos">Somente ativos</option>
-          <option value="inativos">Somente inativos</option>
-        </select>
-        <select
-          className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none"
-          value={filtroEstoque}
-          onChange={e => alterarFiltro(setFiltroEstoque, e.target.value)}
-        >
-          <option value="todos">Todos os estoques</option>
-          <option value="abaixo-minimo">Abaixo do mínimo</option>
-          <option value="sem-estoque">Sem estoque</option>
-          <option value="com-estoque">Com estoque</option>
-        </select>
-        <select
-          className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none"
-          value={ordenacao}
-          onChange={e => alterarFiltro(setOrdenacao, e.target.value)}
-        >
-          <option value="nome-asc">Nome A-Z</option>
-          <option value="nome-desc">Nome Z-A</option>
-          <option value="preco-desc">Maior preço</option>
-          <option value="preco-asc">Menor preço</option>
-          <option value="estoque-desc">Maior estoque</option>
-          <option value="estoque-asc">Menor estoque</option>
-        </select>
+        <div className="flex flex-col gap-1.5">
+          <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--texto-3)]">
+            Status do produto
+          </label>
+          <select
+            className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none"
+            value={filtroStatus}
+            onChange={e => alterarFiltro(setFiltroStatus, e.target.value)}
+          >
+            <option value="todos">Todos os status ({lista.length})</option>
+            <option value="ativos">Ativos ({totalAtivos})</option>
+            <option value="inativos">Inativos ({totalInativos})</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--texto-3)]">
+            Estoque
+          </label>
+          <select
+            className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none"
+            value={filtroEstoque}
+            onChange={e => alterarFiltro(setFiltroEstoque, e.target.value)}
+          >
+            <option value="todos">Todos os estoques</option>
+            <option value="abaixo-minimo">Abaixo do mínimo</option>
+            <option value="sem-estoque">Sem estoque</option>
+            <option value="com-estoque">Com estoque</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--texto-3)]">
+            Ordenação
+          </label>
+          <select
+            className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none"
+            value={ordenacao}
+            onChange={e => alterarFiltro(setOrdenacao, e.target.value)}
+          >
+            <option value="nome-asc">Nome A-Z</option>
+            <option value="nome-desc">Nome Z-A</option>
+            <option value="preco-desc">Maior preço</option>
+            <option value="preco-asc">Menor preço</option>
+            <option value="estoque-desc">Maior estoque</option>
+            <option value="estoque-asc">Menor estoque</option>
+          </select>
+        </div>
       </div>
 
       {carregando && <EstadoCarregando linhas={8} />}
@@ -235,11 +252,19 @@ export default function Produtos() {
                 {paginaDados.map(p => (
                   <tr
                     key={p.id}
-                    className="border-b border-[var(--linha-suave)] last:border-0 hover:bg-[var(--fundo-2)] transition-colors"
+                    className={[
+                      'border-b border-[var(--linha-suave)] last:border-0 hover:bg-[var(--fundo-2)] transition-colors',
+                      !p.ativo ? 'opacity-70' : '',
+                    ].join(' ')}
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-[var(--texto-0)] font-medium">{p.nome}</span>
+                        <span className={[
+                          'text-[var(--texto-0)] font-medium',
+                          !p.ativo ? 'line-through decoration-[var(--texto-3)]' : '',
+                        ].join(' ')}>
+                          {p.nome}
+                        </span>
                         {p.abaixoDoMinimo && (
                           <span title="Estoque abaixo do mínimo">
                             <AlertTriangle size={13} className="text-[oklch(0.65_0.18_55)]" />

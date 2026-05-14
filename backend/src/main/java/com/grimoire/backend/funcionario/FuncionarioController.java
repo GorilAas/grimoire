@@ -3,7 +3,6 @@ package com.grimoire.backend.funcionario;
 import com.grimoire.backend.funcionario.dto.FuncionarioRequest;
 import com.grimoire.backend.funcionario.dto.FuncionarioResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +23,7 @@ public class FuncionarioController {
     }
 
     public record CriarAcessoRequest(
-        @NotBlank(message = "E-mail e obrigatorio")
-        @Email(message = "E-mail invalido")
+        @NotBlank(message = "Login e obrigatorio")
         String email,
 
         @NotBlank(message = "Senha e obrigatoria")
@@ -37,6 +35,11 @@ public class FuncionarioController {
     ) {}
 
     public record AtualizarAcessoRequest(
+        String email,
+
+        @Size(min = 6, message = "Senha deve ter no minimo 6 caracteres")
+        String senha,
+
         String perfil,
         List<String> telasPermitidas
     ) {}
@@ -96,8 +99,8 @@ public class FuncionarioController {
     @PatchMapping("/{id}/acesso")
     public FuncionarioResponse atualizarAcesso(
             @PathVariable Long id,
-            @RequestBody AtualizarAcessoRequest dto) {
-        return FuncionarioResponse.from(service.atualizarAcesso(id, dto.perfil(), dto.telasPermitidas()));
+            @Valid @RequestBody AtualizarAcessoRequest dto) {
+        return FuncionarioResponse.from(service.atualizarAcesso(id, dto.email(), dto.senha(), dto.perfil(), dto.telasPermitidas()));
     }
 
     @DeleteMapping("/{id}/acesso")

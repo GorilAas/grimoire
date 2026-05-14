@@ -5,13 +5,15 @@ import { TELAS_SISTEMA } from '@/configuracao/telasSistema'
 
 const PERFIS = [
   { valor: '', rotulo: 'Padrao baseado no cargo' },
+  { valor: 'ADMIN', rotulo: 'Administrador' },
   { valor: 'GERENTE', rotulo: 'Gerente' },
   { valor: 'ATENDENTE', rotulo: 'Atendente' },
   { valor: 'PADEIRO', rotulo: 'Padeiro' },
 ]
+const ESTILO_CHECKBOX = { accentColor: 'oklch(0.62 0.1 145)' }
 
 function telasPadraoPorPerfil(perfil) {
-  if (!perfil || perfil === 'GERENTE') return []
+  if (!perfil || perfil === 'ADMIN' || perfil === 'GERENTE') return []
   return TELAS_SISTEMA
     .filter(tela => tela.perfis?.includes(perfil))
     .map(tela => tela.id)
@@ -19,7 +21,6 @@ function telasPadraoPorPerfil(perfil) {
 
 export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
   const temAcesso = funcionario?.possuiAcesso ?? false
-  const ehAdmin = funcionario?.perfil === 'ADMIN'
 
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
@@ -30,8 +31,9 @@ export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
   const [confirmarRevogacao, setConfirmarRevogacao] = useState(false)
 
   const perfilEfetivo = perfil || funcionario?.perfil || ''
+  const ehAdmin = perfilEfetivo === 'ADMIN'
   const telasSelecionaveis = useMemo(
-    () => TELAS_SISTEMA.filter(tela => !perfilEfetivo || tela.perfis?.includes(perfilEfetivo) || perfilEfetivo === 'GERENTE'),
+    () => TELAS_SISTEMA.filter(tela => !perfilEfetivo || tela.perfis?.includes(perfilEfetivo) || perfilEfetivo === 'ADMIN' || perfilEfetivo === 'GERENTE'),
     [perfilEfetivo],
   )
 
@@ -78,7 +80,7 @@ export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
     try {
       await authServico.atualizarAcesso(funcionario.id, {
         perfil: perfil || funcionario.perfil,
-        telasPermitidas: telas,
+        telasPermitidas: perfil === 'ADMIN' ? [] : telas,
       })
       aoSalvar?.()
     } catch (err) {
@@ -177,8 +179,7 @@ export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
             <select
               value={perfil}
               onChange={e => setPerfil(e.target.value)}
-              disabled={ehAdmin}
-              className="w-full px-3.5 py-2.5 rounded-[10px] text-[13.5px] text-[var(--texto-0)] bg-[var(--fundo-3)] border border-[var(--linha-suave)] outline-none disabled:opacity-70"
+              className="w-full px-3.5 py-2.5 rounded-[10px] text-[13.5px] text-[var(--texto-0)] bg-[var(--fundo-3)] border border-[var(--linha-suave)] outline-none"
             >
               {PERFIS.map(p => <option key={p.valor} value={p.valor}>{p.rotulo}</option>)}
             </select>
@@ -190,7 +191,7 @@ export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
                 Telas permitidas
               </h3>
               <p className="text-[12px] text-[var(--texto-3)] mt-1">
-                Se nenhuma tela for marcada, o sistema usa o acesso padrao do perfil. Admin sempre acessa tudo.
+                Se nenhuma tela for marcada, o sistema usa o acesso padrao do perfil. Administrador sempre acessa tudo.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -204,6 +205,7 @@ export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
                   >
                     <input
                       type="checkbox"
+                      style={ESTILO_CHECKBOX}
                       checked={marcado}
                       disabled={ehAdmin}
                       onChange={() => alternarTela(tela.id)}
@@ -253,7 +255,7 @@ export default function ModalAcesso({ funcionario, aoFechar, aoSalvar }) {
             <button
               type="button"
               onClick={temAcesso ? handleAtualizar : criarAcesso}
-              disabled={salvando || ehAdmin}
+              disabled={salvando}
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold disabled:opacity-60"
               style={{
                 background: 'var(--botao-primario-bg)',

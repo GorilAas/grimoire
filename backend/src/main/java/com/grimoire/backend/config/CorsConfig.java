@@ -22,6 +22,9 @@ public class CorsConfig {
             "http://localhost:5173",
             frontendUrl
         ));
+        config.setAllowedOriginPatterns(List.of(
+            "https://*.ngrok-free.app"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of(
             "Content-Type", "Authorization", "Accept", "Origin",

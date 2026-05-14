@@ -67,9 +67,9 @@ export default function JanelaChat() {
   }
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
-      <div ref={refScroll} className="flex-1 overflow-y-auto py-7">
-        <div className="max-w-[880px] mx-auto px-7">
+    <div className="flex flex-col h-[calc(100dvh-116px)] sm:h-[calc(100vh-64px)]">
+      <div ref={refScroll} className="flex-1 overflow-y-auto py-4 sm:py-7">
+        <div className="max-w-[880px] mx-auto px-3 sm:px-7">
           {mensagens.length === 0 && (
             <div className="flex flex-col items-center gap-3 py-20 text-center">
               <p className="text-[15px] font-semibold text-[var(--texto-0)]">

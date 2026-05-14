@@ -146,20 +146,20 @@ export default function ModalVenda({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
       style={{ background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(4px)' }}
       onClick={e => e.target === e.currentTarget && onFechar()}
     >
       <div
-        className="w-full max-w-2xl rounded-[16px] border border-[var(--linha-suave)] shadow-[var(--sombra-md)] p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-2xl rounded-[14px] sm:rounded-[16px] border border-[var(--linha-suave)] shadow-[var(--sombra-md)] p-4 sm:p-6 flex flex-col gap-4 sm:gap-5 max-h-[calc(100dvh-16px)] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden"
         style={{ background: 'var(--fundo-1)' }}
       >
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
             <h2 className="text-[16px] font-semibold text-[var(--texto-0)]">
               {editando ? `Venda #${venda.id}` : 'Nova venda'}
             </h2>
-            <p className="text-[12px] text-[var(--texto-3)] mt-0.5">
+            <p className="text-[12px] text-[var(--texto-3)] mt-0.5 break-words">
               {editando
                 ? `${formatarDataHora(venda.dataVenda)} Â· ${cancelada ? 'cancelada' : 'ativa'}`
                 : 'Registre os itens e o responsável pela venda'}
@@ -180,7 +180,7 @@ export default function ModalVenda({
         )}
 
         <form onSubmit={salvar} className="flex flex-col gap-4">
-          <div className="grid md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
               <label className="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--texto-3)]">
                 Funcionário responsável *
@@ -220,7 +220,7 @@ export default function ModalVenda({
             <label className="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--texto-3)]">
               Forma de pagamento *
             </label>
-            <div className="flex gap-1.5 flex-wrap">
+            <div className="grid grid-cols-2 min-[420px]:grid-cols-3 sm:flex sm:flex-wrap gap-1.5">
               {FORMAS.map(f => (
                 <button
                   key={f.valor}
@@ -229,7 +229,7 @@ export default function ModalVenda({
                   aria-pressed={forma === f.valor}
                   onClick={() => setForma(f.valor)}
                   className={[
-                    'h-9 text-[12px] px-3 rounded-[9px] border font-semibold transition-all disabled:opacity-60 inline-flex items-center gap-1.5',
+                    'h-9 text-[12px] px-3 rounded-[9px] border font-semibold transition-all disabled:opacity-60 inline-flex items-center justify-center gap-1.5',
                     forma === f.valor
                       ? 'bg-[var(--botao-primario-bg)] border-[var(--acento)] text-[var(--botao-primario-texto)] shadow-[0_0_0_2px_oklch(0.48_0.07_145/0.28)]'
                       : 'bg-[var(--fundo-2)] border-[var(--linha-suave)] text-[var(--texto-1)] hover:text-[var(--texto-0)] hover:border-[var(--linha)]',
@@ -248,9 +248,9 @@ export default function ModalVenda({
             </label>
 
             {itens.map((item, idx) => (
-              <div key={idx} className="grid grid-cols-[1fr_82px_32px] gap-2 items-center">
+              <div key={idx} className="grid grid-cols-[minmax(0,1fr)_72px_32px] sm:grid-cols-[minmax(0,1fr)_82px_32px] gap-2 items-center">
                 <select
-                  className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none focus:border-[var(--acento)] transition-colors"
+                  className="h-9 min-w-0 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] outline-none focus:border-[var(--acento)] transition-colors"
                   value={item.produtoId}
                   disabled={cancelada}
                   onChange={e => atualizarItem(idx, 'produtoId', e.target.value)}
@@ -265,7 +265,7 @@ export default function ModalVenda({
                   type="number"
                   min="0.001"
                   step="0.001"
-                  className="h-9 px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] text-center outline-none focus:border-[var(--acento)] transition-colors"
+                  className="h-9 min-w-0 px-2 sm:px-3 rounded-[8px] border border-[var(--linha-suave)] bg-[var(--fundo-2)] text-[13px] text-[var(--texto-0)] text-center outline-none focus:border-[var(--acento)] transition-colors"
                   value={item.quantidade}
                   disabled={cancelada}
                   onChange={e => atualizarItem(idx, 'quantidade', e.target.value)}
@@ -296,7 +296,7 @@ export default function ModalVenda({
           </div>
 
           {total > 0 && (
-            <div className="flex justify-between items-center px-4 py-3 rounded-[10px] border border-[var(--linha-suave)] bg-[var(--fundo-2)]">
+            <div className="flex justify-between items-center gap-3 px-4 py-3 rounded-[10px] border border-[var(--linha-suave)] bg-[var(--fundo-2)]">
               <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--texto-3)]">Total</span>
               <span className="font-mono text-[18px] font-semibold text-[var(--texto-0)]">{formatarMoeda(total)}</span>
             </div>
@@ -338,10 +338,10 @@ export default function ModalVenda({
             </p>
           )}
 
-          <div className="flex gap-2 justify-end pt-1">
-            <Botao variante="fantasma" type="button" onClick={onFechar}>Fechar</Botao>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 justify-end pt-1">
+            <Botao variante="fantasma" type="button" onClick={onFechar} className="w-full sm:w-auto justify-center">Fechar</Botao>
             {!cancelada && (
-              <Botao variante="primario" type="submit" disabled={salvando}>
+              <Botao variante="primario" type="submit" disabled={salvando} className="w-full sm:w-auto justify-center">
                 {salvando ? 'Salvando...' : editando ? 'Salvar venda' : 'Registrar venda'}
               </Botao>
             )}

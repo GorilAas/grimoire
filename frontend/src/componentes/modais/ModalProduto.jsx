@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react'
-import { X, Package } from 'lucide-react'
+import { X, Package, RotateCcw, Trash2 } from 'lucide-react'
 import Botao from '@/componentes/ui/Botao'
 import produtosServico from '@/servicos/produtosServico'
 import categoriaServico from '@/servicos/categoriaServico'
@@ -21,6 +21,7 @@ export default function ModalProduto({ aberto, onFechar, produto, onSalvo }) {
   const [form, setForm] = useState(VAZIO)
   const [categorias, setCategorias] = useState([])
   const [salvando, setSalvando] = useState(false)
+  const [alterandoStatus, setAlterandoStatus] = useState(false)
   const [erro, setErro] = useState(null)
 
   const editando = !!produto
@@ -87,6 +88,30 @@ export default function ModalProduto({ aberto, onFechar, produto, onSalvo }) {
       setErro(err?.response?.data?.mensagem ?? 'Erro ao salvar. Tente novamente.')
     } finally {
       setSalvando(false)
+    }
+  }
+
+  async function alterarStatus() {
+    if (!editando || alterandoStatus) return
+
+    setErro(null)
+
+    if (produto.ativo) {
+      const confirmou = window.confirm(`Deseja realmente inativar o produto "${produto.nome}"?`)
+      if (!confirmou) return
+    }
+
+    setAlterandoStatus(true)
+    try {
+      produto.ativo
+        ? await produtosServico.inativar(produto.id)
+        : await produtosServico.reativar(produto.id)
+      onSalvo?.()
+      onFechar()
+    } catch (err) {
+      setErro(err?.response?.data?.mensagem ?? 'Erro ao alterar status do produto.')
+    } finally {
+      setAlterandoStatus(false)
     }
   }
 
@@ -255,11 +280,36 @@ export default function ModalProduto({ aberto, onFechar, produto, onSalvo }) {
             </p>
           )}
 
-          <div className="flex gap-2 justify-end pt-1">
-            <Botao variante="fantasma" type="button" onClick={onFechar}>Cancelar</Botao>
-            <Botao variante="primario" type="submit" disabled={salvando}>
-              {salvando ? 'Salvando...' : editando ? 'Salvar alterações' : 'Cadastrar produto'}
-            </Botao>
+          <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center sm:justify-between">
+            {editando ? (
+              <button
+                type="button"
+                onClick={alterarStatus}
+                disabled={alterandoStatus || salvando}
+                className={[
+                  'h-9 px-3 inline-flex items-center justify-center gap-2 rounded-[8px] border text-[12.5px] font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+                  produto.ativo
+                    ? 'border-[var(--negativo)]/35 text-[var(--negativo)] hover:bg-[var(--negativo)]/10'
+                    : 'border-[var(--acento)]/40 text-[var(--acento)] hover:bg-[var(--acento-suave)]',
+                ].join(' ')}
+              >
+                {produto.ativo ? <Trash2 size={13} /> : <RotateCcw size={13} />}
+                {alterandoStatus
+                  ? 'Alterando...'
+                  : produto.ativo
+                    ? 'Inativar produto'
+                    : 'Reativar produto'}
+              </button>
+            ) : (
+              <span />
+            )}
+
+            <div className="flex gap-2 justify-end">
+              <Botao variante="fantasma" type="button" onClick={onFechar}>Cancelar</Botao>
+              <Botao variante="primario" type="submit" disabled={salvando || alterandoStatus}>
+                {salvando ? 'Salvando...' : editando ? 'Salvar alterações' : 'Cadastrar produto'}
+              </Botao>
+            </div>
           </div>
         </form>
       </div>

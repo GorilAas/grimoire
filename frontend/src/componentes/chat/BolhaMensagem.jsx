@@ -12,7 +12,7 @@ export default function BolhaMensagem({ mensagem }) {
   const eUsuario = mensagem.papel === 'usuario'
 
   return (
-    <div className="grid gap-3" style={{ gridTemplateColumns: '32px 1fr' }}>
+    <div className="grid gap-2.5 sm:gap-3 min-w-0" style={{ gridTemplateColumns: '32px minmax(0, 1fr)' }}>
       <div
         className="w-8 h-8 rounded-[9px] grid place-items-center text-[11px] font-mono font-bold shrink-0"
         style={eUsuario
@@ -23,8 +23,8 @@ export default function BolhaMensagem({ mensagem }) {
         {eUsuario ? iniciaisNome(usuario?.nome) : <Sparkles size={14} />}
       </div>
 
-      <div>
-        <div className="flex items-baseline gap-2 mb-1.5">
+      <div className="min-w-0">
+        <div className="flex items-baseline gap-2 mb-1.5 min-w-0">
           <span className="text-[13px] font-semibold text-[var(--texto-0)]">
             {eUsuario ? (usuario?.nome?.split(' ')[0] ?? 'Voce') : 'Assistente FresQUIM'}
           </span>
@@ -33,7 +33,7 @@ export default function BolhaMensagem({ mensagem }) {
           </small>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 min-w-0">
           {mensagem.conteudo && (
             <p className="text-[14px] leading-[1.6] text-[var(--texto-1)]">{mensagem.conteudo}</p>
           )}

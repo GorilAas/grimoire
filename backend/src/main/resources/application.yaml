@@ -69,7 +69,9 @@ spring:
   datasource:
     url: jdbc:postgresql://aws-1-sa-east-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
     username: postgres.mkeeygtjrktjherjtciz
-    password: ${SUPABASE_PASSWORD}
+    password: ${SUPABASE_PASSWORD:SUA_SENHA_AQUI}
+  groq:
+    api-key: ${GROQ_API_KEY:SUA_CHAVE_GROQ_AQUI}
 
 ---
 spring:

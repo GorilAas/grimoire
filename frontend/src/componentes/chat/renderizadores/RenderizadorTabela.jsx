@@ -5,6 +5,18 @@ function CelulaValor({ valor }) {
     const mapa = { ok: 'ok', alerta: 'alerta', erro: 'erro' }
     return <Chip variante={mapa[valor.tom] ?? 'mudo'}>{valor.rotulo}</Chip>
   }
+
+  if (valor && typeof valor === 'object') {
+    const texto =
+      valor.nome ??
+      valor.rotulo ??
+      valor.label ??
+      valor.valor ??
+      Object.entries(valor).map(([chave, item]) => `${chave}: ${item}`).join(', ')
+
+    return <span>{texto}</span>
+  }
+
   return <span>{valor}</span>
 }
 

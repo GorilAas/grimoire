@@ -53,6 +53,7 @@ export default function Cabecalho({ tema, alternarTema, onAbrirMenu }) {
     function aoClicarFora(evento) {
       if (buscaRef.current && !buscaRef.current.contains(evento.target)) {
         setAberto(false)
+        buscaRef.current.querySelector('input')?.blur()
       }
     }
 

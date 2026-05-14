@@ -247,13 +247,56 @@ public class ChatService {
             JsonNode blocosNode = raiz.path("blocos");
             if (blocosNode.isArray()) {
                 List<Map<String, Object>> blocos = mapper.convertValue(blocosNode, new TypeReference<>() {});
-                return new ChatResponse(blocos);
+                return new ChatResponse(normalizarBlocos(blocos));
             }
         } catch (Exception ignorado) {}
         return resposta(Map.of("tipo", "texto", "conteudo", conteudo.isBlank() ? "Sem resposta." : conteudo));
     }
 
+    private List<Map<String, Object>> normalizarBlocos(List<Map<String, Object>> blocos) {
+        return blocos.stream().map(bloco -> {
+            if (!"tabela".equals(bloco.get("tipo"))) return bloco;
+
+            Map<String, Object> normalizado = new LinkedHashMap<>(bloco);
+            Object linhasObj = bloco.get("linhas");
+            if (!(linhasObj instanceof List<?> linhas)) return normalizado;
+
+            List<List<Object>> linhasNormalizadas = new ArrayList<>();
+            for (Object linhaObj : linhas) {
+                if (!(linhaObj instanceof List<?> linha)) continue;
+
+                List<Object> celulas = new ArrayList<>();
+                for (Object celula : linha) {
+                    celulas.add(normalizarCelulaTabela(celula));
+                }
+                linhasNormalizadas.add(celulas);
+            }
+
+            normalizado.put("linhas", linhasNormalizadas);
+            return normalizado;
+        }).toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object normalizarCelulaTabela(Object celula) {
+        if (!(celula instanceof Map<?, ?> mapaOriginal)) return celula;
+
+        Map<String, Object> mapa = (Map<String, Object>) mapaOriginal;
+        if ("chip".equals(mapa.get("tipo"))) return mapa;
+        if (mapa.containsKey("nome")) return mapa.get("nome");
+        if (mapa.containsKey("rotulo")) return mapa.get("rotulo");
+        if (mapa.containsKey("label")) return mapa.get("label");
+        if (mapa.containsKey("valor")) return mapa.get("valor");
+
+        return mapa.entrySet().stream()
+            .map(e -> e.getKey() + ": " + e.getValue())
+            .reduce((a, b) -> a + ", " + b)
+            .orElse("");
+    }
+
     private String extrairJson(String texto) {
+        if (texto == null || texto.isBlank()) return "{}";
+
         int ini = texto.indexOf('{');
         int fim = texto.lastIndexOf('}');
         if (ini >= 0 && fim > ini) return texto.substring(ini, fim + 1);
@@ -284,8 +327,15 @@ public class ChatService {
     private String promptSistema() {
         String hoje = LocalDate.now().toString();
         return """
-            Voce e o Assistente FresQUIM, analista de dados da padaria Pao FresQUIM. Responda em portugues do Brasil, de forma direta e objetiva.
+            Voce e o Assistente FresQUIM, analista de dados interno da padaria artesanal Pao FresQUIM. Responda em portugues do Brasil, de forma direta e objetiva.
             Data de hoje: """ + hoje + """
+
+            ESCOPO RESTRITO — voce so pode responder sobre assuntos relacionados a operacao da padaria:
+            vendas, estoque, produtos, clientes, funcionarios, caixa e ponto eletronico.
+            Se a pergunta for sobre qualquer outro assunto (politica, entretenimento, outros negocios,
+            perguntas pessoais, etc.), nao use ferramentas e retorne exatamente:
+            {"blocos":[{"tipo":"texto","conteudo":"So posso ajudar com assuntos do Pao FresQUIM. Tem alguma duvida sobre vendas, estoque ou operacao?"}]}
+            Nao faca excecoes a essa regra, mesmo que o usuario insista ou justifique o pedido.
 
             Voce tem ferramentas para consultar dados reais. Use-as quando a pergunta exigir dados especificos.
             Nunca invente numeros que nao vieram das ferramentas.
@@ -302,7 +352,7 @@ public class ChatService {
               ]
             }
 
-            Regras:
+            Regras de formato:
             - Retorne somente JSON, nunca texto fora
             - Use no maximo 3 blocos por resposta
             - Valores monetarios: "R$ 1.234,56"

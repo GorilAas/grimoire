@@ -5,7 +5,7 @@ import { GraficoBarrasChat, GraficoAreaChat, GraficoPizzaChat } from './Renderiz
 
 export default function RenderizadorGenerativo({ bloco }) {
   const envolto = (filho) => (
-    <div className="mt-2.5 p-[18px] rounded-[16px] border border-[var(--linha-suave)] backdrop-blur-sm"
+    <div className="mt-2.5 p-3 sm:p-[18px] rounded-[14px] sm:rounded-[16px] border border-[var(--linha-suave)] backdrop-blur-sm max-w-full overflow-hidden"
       style={{ background: 'linear-gradient(180deg, oklch(0.24 0.014 90 / 0.6), oklch(0.21 0.012 90 / 0.5))' }}
     >
       {filho}

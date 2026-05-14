@@ -161,7 +161,7 @@ export default function PainelNotificacoes() {
       {/* Painel dropdown */}
       {aberto && (
         <div
-          className="absolute right-0 top-[calc(100%+8px)] w-[360px] rounded-[16px] border border-[var(--linha-suave)] overflow-hidden z-50"
+          className="fixed left-3 right-3 top-[116px] max-h-[calc(100dvh-132px)] rounded-[16px] border border-[var(--linha-suave)] overflow-hidden z-50 sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+8px)] sm:w-[360px] sm:max-h-none"
           style={{
             background:  'var(--fundo-1)',
             boxShadow:   'var(--sombra-md)',
@@ -202,7 +202,7 @@ export default function PainelNotificacoes() {
           </div>
 
           {/* Conteúdo */}
-          <div className="max-h-[420px] overflow-y-auto">
+          <div className="max-h-[min(420px,calc(100dvh-230px))] overflow-y-auto">
             {!carregando && totalAlertas === 0 && (
               <div className="flex flex-col items-center gap-3 py-12 px-4">
                 <div

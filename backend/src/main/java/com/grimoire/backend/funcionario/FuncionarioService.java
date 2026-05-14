@@ -97,15 +97,15 @@ public class FuncionarioService {
             throw new RegraNegocioException("Funcionario ja possui acesso cadastrado");
         }
 
-        String perfilEfetivo = perfil != null ? perfil : resolverPerfil(funcionario.getCargo());
-        String telas = normalizarTelas(telasPermitidas);
+        String perfilEfetivo = perfil != null && !perfil.isBlank() ? normalizarPerfil(perfil) : resolverPerfil(funcionario.getCargo());
+        String telas = "ADMIN".equals(perfilEfetivo) ? null : normalizarTelas(telasPermitidas);
 
         Usuario usuario = usuarioService.criar(funcionario.getNome(), email, senha, perfilEfetivo, telas);
         funcionario.setUsuario(usuario);
         return repository.save(funcionario);
     }
 
-    public Funcionario atualizarAcesso(Long id, String perfil, List<String> telasPermitidas) {
+    public Funcionario atualizarAcesso(Long id, String email, String senha, String perfil, List<String> telasPermitidas) {
         Funcionario funcionario = buscarPorId(id);
 
         if (funcionario.getUsuario() == null) {
@@ -113,15 +113,10 @@ public class FuncionarioService {
         }
 
         Usuario usuario = funcionario.getUsuario();
-        if ("ADMIN".equals(usuario.getPerfil())) {
-            usuario.setTelasPermitidas(null);
-            return repository.save(funcionario);
-        }
+        String perfilEfetivo = perfil != null && !perfil.isBlank() ? normalizarPerfil(perfil) : usuario.getPerfil();
+        String telas = "ADMIN".equals(perfilEfetivo) ? null : normalizarTelas(telasPermitidas);
 
-        if (perfil != null && !perfil.isBlank()) {
-            usuario.setPerfil(normalizarPerfil(perfil));
-        }
-        usuario.setTelasPermitidas(normalizarTelas(telasPermitidas));
+        usuarioService.atualizarAcesso(usuario, email, senha, perfilEfetivo, telas);
         return repository.save(funcionario);
     }
 

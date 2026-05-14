@@ -71,7 +71,7 @@ export default function PainelAcessibilidade() {
 
       {aberto && (
         <div
-          className="absolute right-0 top-[calc(100%+8px)] w-[380px] rounded-[16px] border border-[var(--linha-suave)] overflow-hidden z-50"
+          className="fixed left-3 right-3 top-[116px] max-h-[calc(100dvh-132px)] rounded-[16px] border border-[var(--linha-suave)] overflow-hidden z-50 sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+8px)] sm:w-[380px] sm:max-h-none"
           style={{ background: 'var(--fundo-1)', boxShadow: 'var(--sombra-md)' }}
           role="dialog"
           aria-label="Painel de acessibilidade"
@@ -90,7 +90,7 @@ export default function PainelAcessibilidade() {
             </button>
           </div>
 
-          <div className="p-4 flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+          <div className="p-3 sm:p-4 flex flex-col gap-4 max-h-[calc(100dvh-210px)] sm:max-h-[70vh] overflow-y-auto">
             <section className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <ALargeSmall size={14} className="text-[var(--acento)]" />
@@ -116,7 +116,7 @@ export default function PainelAcessibilidade() {
               </div>
             </section>
 
-            <section className="grid grid-cols-2 gap-2">
+            <section className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button
                 onClick={alternarContraste}
                 className={[

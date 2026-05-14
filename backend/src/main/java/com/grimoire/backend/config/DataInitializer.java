@@ -26,17 +26,31 @@ public class DataInitializer implements CommandLineRunner {
         var adminExistente = usuarioRepository.findByEmail("admin");
         if (adminExistente.isPresent()) {
             var admin = adminExistente.get();
+            boolean alterado = false;
+
             if (!hashBcryptValido(admin.getSenhaHash())) {
                 admin.setSenhaHash(encoder.encode(adminSenha));
+                alterado = true;
+            }
+            if (!"ADMIN".equals(admin.getPerfil())) {
                 admin.setPerfil("ADMIN");
+                alterado = true;
+            }
+            if (!Boolean.TRUE.equals(admin.getAtivo())) {
                 admin.setAtivo(true);
+                alterado = true;
+            }
+            if (admin.getTelasPermitidas() != null) {
                 admin.setTelasPermitidas(null);
-                usuarioRepository.save(admin);
-                log.info("Conta admin existente corrigida com hash seguro.");
-                return;
+                alterado = true;
             }
 
-            log.info("Admin ja existe. Nenhuma acao necessaria.");
+            if (alterado) {
+                usuarioRepository.save(admin);
+                log.info("Conta admin existente corrigida.");
+            } else {
+                log.info("Admin ja existe. Nenhuma acao necessaria.");
+            }
             return;
         }
 

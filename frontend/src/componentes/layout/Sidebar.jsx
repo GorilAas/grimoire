@@ -63,8 +63,12 @@ export default function Sidebar({ abertoMobile = false, onFecharMobile }) {
     navigate('/login', { replace: true })
   }
 
-  const iniciais = usuario?.nome
-    ? usuario.nome.split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase()
+  const nomeUsuario = usuario?.nome && usuario.nome !== '/'
+    ? usuario.nome
+    : usuario?.login || 'Funcionário'
+
+  const iniciais = nomeUsuario
+    ? nomeUsuario.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
     : '?'
 
   return (
@@ -171,7 +175,7 @@ export default function Sidebar({ abertoMobile = false, onFecharMobile }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[12.5px] font-semibold text-[var(--texto-0)] leading-[1.1] truncate">
-              {usuario?.nome ?? '-'}
+              {nomeUsuario}
             </div>
             <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--texto-3)]">
               {ROTULOS_PERFIL[usuario?.perfil] ?? usuario?.perfil ?? '-'}

@@ -3,10 +3,10 @@ import CabecalhoPagina from '@/componentes/ui/CabecalhoPagina'
 import Chip from '@/componentes/ui/Chip'
 
 const CAMERAS = [
-  { rotulo: 'Caixa Principal', src: null },
+  { rotulo: 'Caixa Principal', src: '/videos/camera/principal.mp4' },
   { rotulo: 'Entrada',         src: '/videos/camera/entrada.mp4' },
   { rotulo: 'Estoque',         src: '/videos/camera/estoque.mp4' },
-  { rotulo: 'Cozinha',         src: null },
+  { rotulo: 'Cozinha',         src: '/videos/camera/cozinha.mp4' },
 ]
 
 function FeedCamera({ rotulo, src }) {

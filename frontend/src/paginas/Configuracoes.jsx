@@ -8,7 +8,7 @@ import EstadoCarregando from '@/componentes/ui/EstadoCarregando'
 import { useDadosApi } from '@/hooks/useDadosApi'
 import cargosServico from '@/servicos/cargosServico'
 
-const PERFIS = ['GERENTE', 'ATENDENTE', 'PADEIRO']
+const PERFIS = ['ADMIN', 'GERENTE', 'ATENDENTE', 'PADEIRO']
 
 const VAZIO = {
   nome: '',
