@@ -92,7 +92,7 @@ export default function Ajuda() {
       <div className="flex flex-col gap-6">
         {TOPICOS.map(topico => (
           <Cartao key={topico.titulo} className="overflow-hidden">
-            {/* Imagens */}
+
             <div className={[
               'grid gap-0',
               topico.imagens.length === 2 ? 'grid-cols-2' : 'grid-cols-1',
@@ -116,7 +116,7 @@ export default function Ajuda() {
               ))}
             </div>
 
-            {/* Conteúdo */}
+
             <div className="p-5 border-t border-[var(--linha-suave)]">
               <div className="flex flex-col gap-3 lg:flex-row lg:gap-8">
                 <div className="lg:w-[260px] shrink-0">

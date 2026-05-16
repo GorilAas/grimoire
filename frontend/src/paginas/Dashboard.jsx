@@ -90,7 +90,6 @@ export default function Dashboard() {
   const ticketMedio = tickets ? receita / tickets : 0
   const fiadoCount = (fiado ?? []).length
   const alertasEstoque = baixoEstoque ?? []
-  // 204 retorna data vazia; qualquer falsy significa sem caixa aberto.
   const caixa = (caixaAberto && caixaAberto.id) ? caixaAberto : null
 
   const dadosHora  = useMemo(() => agruparPorHora(lista),  [lista])

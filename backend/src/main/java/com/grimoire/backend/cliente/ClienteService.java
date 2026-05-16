@@ -26,7 +26,7 @@ public class ClienteService {
             throw new RegraNegocioException("CPF já cadastrado no sistema");
         }
 
-        boolean negativado = serasaClient.estaNegativado(dto.cpf());  // RN02
+        boolean negativado = serasaClient.estaNegativado(dto.cpf());
         if (negativado) {
             throw new RegraNegocioException(
                     "Cliente negativado no Serasa — cadastro bloqueado (RN02)"

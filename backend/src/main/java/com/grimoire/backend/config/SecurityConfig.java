@@ -26,52 +26,32 @@ public class SecurityConfig {
             .cors(cors -> {})
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-
-                // ── Público ───────────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/api/cargos/**")
                     .hasAnyRole("ADMIN", "GERENTE", "ATENDENTE", "PADEIRO")
                 .requestMatchers("/api/cargos/**").hasAnyRole("ADMIN", "GERENTE")
-
-                // ── Funcionários ──────────────────────────────────────────
                 .requestMatchers(HttpMethod.POST,   "/api/funcionarios/*/acesso").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH,  "/api/funcionarios/*/acesso").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/funcionarios/*/acesso").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/funcionarios/me").authenticated()
                 .requestMatchers("/api/funcionarios/**").hasAnyRole("ADMIN", "GERENTE")
-
-                // ── Categorias — GET para todos; mutações ADMIN/GERENTE ───
                 .requestMatchers(HttpMethod.GET, "/api/categorias/**")
                     .hasAnyRole("ADMIN", "GERENTE", "ATENDENTE", "PADEIRO")
                 .requestMatchers("/api/categorias/**").hasAnyRole("ADMIN", "GERENTE")
-
-                // ── Produtos — todos os perfis ────────────────────────────
                 .requestMatchers("/api/produtos/**")
                     .hasAnyRole("ADMIN", "GERENTE", "ATENDENTE", "PADEIRO")
-
-                // ── Estoque — ADMIN e GERENTE ─────────────────────────────
                 .requestMatchers("/api/estoque/**").hasAnyRole("ADMIN", "GERENTE")
-
-                // ── Clientes — ADMIN, GERENTE, ATENDENTE ─────────────────
                 .requestMatchers("/api/clientes/**").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
-
-                // ── Vendas — cancelamento só ADMIN/GERENTE ───────────────
                 .requestMatchers(HttpMethod.PATCH, "/api/vendas/*/cancelar").hasAnyRole("ADMIN", "GERENTE")
                 .requestMatchers("/api/vendas/**").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
-
-                // ── Caixa — ADMIN e GERENTE ───────────────────────────────
                 .requestMatchers("/api/caixa/**").hasAnyRole("ADMIN", "GERENTE")
-
-                // ── Ponto ─────────────────────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/ponto/bater").authenticated()
                 .requestMatchers(HttpMethod.GET,  "/api/ponto/hoje/**").authenticated()
                 .requestMatchers(HttpMethod.GET,  "/api/ponto/resumo/**").authenticated()
                 .requestMatchers(HttpMethod.GET,  "/api/ponto/periodo").hasAnyRole("ADMIN", "GERENTE")
                 .requestMatchers(HttpMethod.POST, "/api/ponto/ajuste").hasAnyRole("ADMIN", "GERENTE")
-
-                // ── Chat — ADMIN, GERENTE, ATENDENTE ─────────────────────
                 .requestMatchers("/api/chat/**").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
 
                 .anyRequest().authenticated()

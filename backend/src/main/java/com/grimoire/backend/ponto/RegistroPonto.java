@@ -19,7 +19,7 @@ public class RegistroPonto {
     private Funcionario funcionario;
 
     @Column(nullable = false, length = 10)
-    private String tipo; // ENTRADA | SAIDA
+    private String tipo;
 
     @Column(nullable = false)
     private LocalDateTime momento;

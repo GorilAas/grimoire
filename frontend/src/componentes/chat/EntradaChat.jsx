@@ -29,7 +29,7 @@ export default function EntradaChat({ valor, onChange, onEnviar, desabilitado })
       className="border-t border-[var(--linha-suave)] px-3 sm:px-7 pb-3 sm:pb-6 pt-3 sm:pt-[18px]"
       style={{ background: 'oklch(0.18 0.012 90 / 0.6)', backdropFilter: 'blur(20px)' }}
     >
-      {/* Sugestões */}
+
       <div className="max-w-[880px] mx-auto flex gap-2 overflow-x-auto pb-1 mb-2.5 sm:flex-wrap sm:overflow-visible">
         {sugestoes.map(s => (
           <button
@@ -42,7 +42,7 @@ export default function EntradaChat({ valor, onChange, onEnviar, desabilitado })
         ))}
       </div>
 
-      {/* Campo de entrada */}
+
       <div
         className="max-w-[880px] mx-auto flex items-end gap-2 px-3 py-2.5 rounded-[14px] border border-[var(--linha)] transition-all duration-200 focus-within:border-musgo-400 focus-within:shadow-[0_0_0_4px_oklch(0.48_0.07_145/0.15),0_8px_24px_oklch(0_0_0/0.25)]"
         style={{ background: 'var(--fundo-1)' }}

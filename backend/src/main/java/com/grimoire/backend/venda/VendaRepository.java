@@ -82,6 +82,18 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
             LEFT JOIN FETCH v.funcionario
             LEFT JOIN FETCH v.itens i
             LEFT JOIN FETCH i.produto
+            WHERE v.status = 'ATIVA'
+              AND v.statusFiado IN :statusFiados
+            ORDER BY v.dataVenda DESC
+            """)
+    List<Venda> listarPorStatusFiadoEm(@Param("statusFiados") List<StatusFiado> statusFiados);
+
+    @Query("""
+            SELECT DISTINCT v FROM Venda v
+            LEFT JOIN FETCH v.cliente
+            LEFT JOIN FETCH v.funcionario
+            LEFT JOIN FETCH v.itens i
+            LEFT JOIN FETCH i.produto
             WHERE v.dataVenda >= :inicio AND v.dataVenda <= :fim
             ORDER BY v.dataVenda DESC
             """)

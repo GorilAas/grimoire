@@ -5,7 +5,7 @@ import produtosServico from '@/servicos/produtosServico'
 import vendasServico from '@/servicos/vendasServico'
 import { formatarMoeda } from '@/utilitarios/formatadores'
 
-const INTERVALO_MS = 2 * 60 * 1000 // 2 minutos
+const INTERVALO_MS = 2 * 60 * 1000
 
 function GrupoNotificacao({ icone: Icone, cor, titulo, items, onItem, onFechar }) {
   if (!items.length) return null
@@ -79,17 +79,11 @@ export default function PainelNotificacoes() {
       if (!silencioso) setCarregando(false)
     }
   }, [])
-
-  // Busca inicial
   useEffect(() => { buscarAlertas() }, [buscarAlertas])
-
-  // Auto-refresh a cada 2 minutos
   useEffect(() => {
     const id = setInterval(() => buscarAlertas(true), INTERVALO_MS)
     return () => clearInterval(id)
   }, [buscarAlertas])
-
-  // Fecha ao clicar fora
   useEffect(() => {
     if (!aberto) return
     function handleFora(e) {
@@ -100,8 +94,6 @@ export default function PainelNotificacoes() {
     document.addEventListener('mousedown', handleFora)
     return () => document.removeEventListener('mousedown', handleFora)
   }, [aberto])
-
-  // Fecha com Escape
   useEffect(() => {
     if (!aberto) return
     function handleKey(e) { if (e.key === 'Escape') setAberto(false) }
@@ -110,8 +102,6 @@ export default function PainelNotificacoes() {
   }, [aberto])
 
   const totalAlertas = estoqueBaixo.length + fiadoAberto.length
-
-  // Monta os itens de cada grupo
   const itensEstoque = estoqueBaixo.map(p => ({
     id:        `estoque-${p.id}`,
     titulo:    p.nome,
@@ -136,7 +126,7 @@ export default function PainelNotificacoes() {
 
   return (
     <div className="relative" ref={painelRef}>
-      {/* Botão sino */}
+
       <button
         onClick={() => setAberto(v => !v)}
         aria-label="Notificações"
@@ -158,7 +148,7 @@ export default function PainelNotificacoes() {
         )}
       </button>
 
-      {/* Painel dropdown */}
+
       {aberto && (
         <div
           className="fixed left-3 right-3 top-[116px] max-h-[calc(100dvh-132px)] rounded-[16px] border border-[var(--linha-suave)] overflow-hidden z-50 sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+8px)] sm:w-[360px] sm:max-h-none"
@@ -167,7 +157,7 @@ export default function PainelNotificacoes() {
             boxShadow:   'var(--sombra-md)',
           }}
         >
-          {/* Header do painel */}
+
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-[var(--linha-suave)]">
             <div className="flex items-center gap-2">
               <Bell size={14} className="text-[var(--acento)]" />
@@ -201,7 +191,7 @@ export default function PainelNotificacoes() {
             </div>
           </div>
 
-          {/* Conteúdo */}
+
           <div className="max-h-[min(420px,calc(100dvh-230px))] overflow-y-auto">
             {!carregando && totalAlertas === 0 && (
               <div className="flex flex-col items-center gap-3 py-12 px-4">
@@ -250,7 +240,7 @@ export default function PainelNotificacoes() {
             )}
           </div>
 
-          {/* Rodapé com hora */}
+
           {horaAtt && (
             <div className="px-4 py-2.5 border-t border-[var(--linha-suave)]">
               <p className="text-[11px] text-[var(--texto-3)] font-mono">

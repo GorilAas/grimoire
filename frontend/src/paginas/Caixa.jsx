@@ -29,13 +29,10 @@ export default function Caixa() {
   const [abrindo,   setAbrindo]   = useState(false)
   const [fechando,  setFechando]  = useState(false)
   const [erro,      setErro]      = useState('')
-
-  // Form abertura
   const [formAbrir, setFormAbrir] = useState({ funcionarioId: '', valorAbertura: '0', observacoes: '' })
-  // Form fechamento
   const [formFechar, setFormFechar] = useState({ valorFechamento: '', observacoes: '' })
 
-  const caixa = caixaAberto  // pode ser null (204) ou objeto
+  const caixa = caixaAberto
 
   async function handleAbrir(e) {
     e.preventDefault()
@@ -89,7 +86,7 @@ export default function Caixa() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        {/* Status atual */}
+
         <Cartao className="p-6 flex flex-col gap-5">
           <div className="flex items-center gap-3">
             <div className={[
@@ -124,7 +121,7 @@ export default function Caixa() {
             </div>
           )}
 
-          {/* Abrir caixa */}
+
           {!caixa && (
             <form onSubmit={handleAbrir} className="flex flex-col gap-3 border-t border-[var(--linha-suave)] pt-4">
               <h3 className="text-[13px] font-semibold text-[var(--texto-0)]">Abrir caixa</h3>
@@ -166,7 +163,7 @@ export default function Caixa() {
             </form>
           )}
 
-          {/* Fechar caixa */}
+
           {caixa && (
             <form onSubmit={handleFechar} className="flex flex-col gap-3 border-t border-[var(--linha-suave)] pt-4">
               <h3 className="text-[13px] font-semibold text-[var(--texto-0)]">Fechar caixa</h3>
@@ -204,7 +201,7 @@ export default function Caixa() {
           )}
         </Cartao>
 
-        {/* Histórico */}
+
         <Cartao className="p-5 flex flex-col gap-3">
           <h3 className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-[var(--texto-3)]">Histórico</h3>
           {carregandoHistorico ? (

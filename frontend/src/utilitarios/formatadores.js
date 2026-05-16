@@ -57,8 +57,6 @@ export function hoje() {
 export function somarValorTotal(vendas = []) {
   return vendas.reduce((acc, v) => acc + Number(v.valorTotal ?? 0), 0)
 }
-
-/** Máscara de CPF para campos de input — chame onChange */
 export function mascaraInputCpf(valor) {
   return valor
     .replace(/\D/g, '')
@@ -67,8 +65,6 @@ export function mascaraInputCpf(valor) {
     .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
     .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4')
 }
-
-/** Máscara de telefone para campos de input */
 export function mascaraInputTelefone(valor) {
   const s = valor.replace(/\D/g, '').slice(0, 11)
   if (s.length <= 10)

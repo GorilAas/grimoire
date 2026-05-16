@@ -1,7 +1,5 @@
 @import "tailwindcss";
-
 @theme {
-  /* Cores da marca — Verde Musgo */
   --color-musgo-50:  oklch(0.95 0.022 145);
   --color-musgo-100: oklch(0.88 0.04  145);
   --color-musgo-200: oklch(0.78 0.06  145);
@@ -12,21 +10,13 @@
   --color-musgo-700: oklch(0.32 0.05  145);
   --color-musgo-800: oklch(0.25 0.035 145);
   --color-musgo-900: oklch(0.2  0.025 145);
-
-  /* Cores da marca — Dourado Forno */
   --color-dourado-300: oklch(0.85 0.12  75);
   --color-dourado-400: oklch(0.78 0.135 70);
   --color-dourado-500: oklch(0.72 0.14  65);
   --color-dourado-600: oklch(0.62 0.13  60);
-
-  /* Tipografia */
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
-
-/* ============================================================
-   Tokens semânticos — Tema Escuro (padrão)
-   ============================================================ */
 :root {
   --escala-interface: 1;
   --fundo-0: oklch(0.18 0.012 90);
@@ -59,7 +49,6 @@
   --sombra-md: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 8px 24px oklch(0 0 0 / 0.35);
   --brilho: 0 0 0 1px oklch(0.48 0.07 145 / 0.4), 0 8px 28px oklch(0.48 0.07 145 / 0.18);
 }
-
 [data-tema="claro"] {
   --fundo-0: oklch(0.965 0.012 96);
   --fundo-1: oklch(0.99  0.006 96);
@@ -91,7 +80,6 @@
   --sombra-md: 0 10px 28px oklch(0.22 0.02 95 / 0.12);
   --brilho: 0 0 0 1px oklch(0.43 0.075 145 / 0.32), 0 10px 26px oklch(0.43 0.075 145 / 0.12);
 }
-
 [data-contraste="alto"] {
   --fundo-0: oklch(0.06 0 0);
   --fundo-1: oklch(0.10 0 0);
@@ -123,12 +111,7 @@
   --sombra-md: 0 0 0 1px var(--linha), 0 12px 30px oklch(0 0 0 / 0.6);
   --brilho: 0 0 0 2px var(--acento-forte);
 }
-
-/* ============================================================
-   Reset base
-   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
-
 html, body {
   margin: 0;
   padding: 0;
@@ -141,21 +124,17 @@ html, body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-
 body {
   zoom: var(--escala-interface);
 }
-
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 input, textarea, select { font: inherit; color: inherit; }
 a { color: inherit; }
 ::selection { background: var(--acento-suave); color: var(--texto-0); }
-
 :focus-visible {
   outline: 3px solid var(--acento-forte);
   outline-offset: 3px;
 }
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -167,7 +146,6 @@ a { color: inherit; }
   white-space: nowrap;
   border: 0;
 }
-
 .atalho-pular {
   position: fixed;
   top: 12px;
@@ -182,19 +160,13 @@ a { color: inherit; }
   box-shadow: var(--sombra-md);
   transition: transform 160ms ease;
 }
-
 .atalho-pular:focus {
   transform: translateY(0);
 }
-
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb { background: var(--fundo-3); border-radius: 999px; border: 2px solid var(--fundo-0); }
 *::-webkit-scrollbar-thumb:hover { background: oklch(0.32 0.05 145); }
-
-/* ============================================================
-   Mesh gradient de fundo
-   ============================================================ */
 .app-mesh {
   position: fixed; inset: 0; z-index: 0;
   pointer-events: none; overflow: hidden;
@@ -217,7 +189,6 @@ a { color: inherit; }
 [data-tema="claro"] .app-mesh::after  { opacity: 0.2; }
 [data-tema="claro"] .app-mesh::before { mix-blend-mode: multiply; }
 [data-tema="claro"] .app-mesh::after  { mix-blend-mode: multiply; }
-
 @keyframes flutuarA {
   0%, 100% { transform: translate(0, 0); }
   50%       { transform: translate(60px, 40px); }
@@ -226,32 +197,24 @@ a { color: inherit; }
   0%, 100% { transform: translate(0, 0); }
   50%       { transform: translate(-60px, -40px); }
 }
-
-/* ============================================================
-   Shell do app
-   ============================================================ */
 .app-shell {
   position: relative; z-index: 1;
   display: grid;
   grid-template-columns: 248px 1fr;
   min-height: 100vh;
 }
-
 .botao-menu-mobile,
 .botao-fechar-menu-mobile,
 .menu-mobile-fundo {
   display: none;
 }
-
 @media (max-width: 900px) {
   html, body {
     font-size: 13px;
   }
-
   .app-shell {
     grid-template-columns: 1fr;
   }
-
   .menu-mobile-fundo {
     display: block;
     position: fixed;
@@ -260,7 +223,6 @@ a { color: inherit; }
     background: oklch(0 0 0 / 0.58);
     backdrop-filter: blur(3px);
   }
-
   .sidebar-app {
     position: fixed;
     inset: 0 auto 0 0;
@@ -271,16 +233,13 @@ a { color: inherit; }
     z-index: 40;
     box-shadow: var(--sombra-md);
   }
-
   .sidebar-app-aberta {
     transform: translateX(0);
   }
-
   .botao-menu-mobile,
   .botao-fechar-menu-mobile {
     display: grid;
   }
-
   header {
     height: auto !important;
     min-height: 58px;
@@ -290,17 +249,14 @@ a { color: inherit; }
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
   }
-
   .trilha-cabecalho {
     grid-column: 2;
     min-width: 0;
   }
-
   .trilha-cabecalho span:first-child,
   .trilha-cabecalho span:nth-child(2) {
     display: none;
   }
-
   .acoes-cabecalho {
     grid-column: 1 / -1;
     width: 100%;
@@ -309,39 +265,29 @@ a { color: inherit; }
     align-items: center;
     gap: 10px !important;
   }
-
   .busca-cabecalho {
     width: 100% !important;
     min-width: 0;
   }
-
   .pagina-entrada {
     padding: 18px 14px !important;
   }
-
   .cabecalho-pagina {
     align-items: flex-start !important;
     flex-direction: column;
   }
-
   .acoes-pagina {
     width: 100%;
     flex-wrap: wrap;
   }
-
   .acoes-pagina > * {
     flex: 1 1 auto;
     justify-content: center;
   }
-
   table {
     min-width: 760px;
   }
 }
-
-/* ============================================================
-   Animações de entrada
-   ============================================================ */
 @keyframes entrarPagina {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -357,7 +303,6 @@ a { color: inherit; }
   0%, 60%, 100% { opacity: 0.25; transform: scale(0.8); }
   30%           { opacity: 1;    transform: scale(1.1); }
 }
-
 .pagina-entrada {
   animation: entrarPagina 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -372,10 +317,6 @@ a { color: inherit; }
 .escalonado > *:nth-child(5) { animation-delay: 240ms; }
 .escalonado > *:nth-child(6) { animation-delay: 290ms; }
 .escalonado > *:nth-child(7) { animation-delay: 340ms; }
-
-/* ============================================================
-   Animações de gráficos
-   ============================================================ */
 .barra-fill {
   animation: crescerBarra 700ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
@@ -388,10 +329,6 @@ a { color: inherit; }
   opacity: 0;
   animation: aparecer 900ms 300ms ease forwards;
 }
-
-/* ============================================================
-   Câmeras
-   ============================================================ */
 .cam-scanlines::before {
   content: ""; position: absolute; inset: 0;
   background: repeating-linear-gradient(
@@ -401,10 +338,6 @@ a { color: inherit; }
   );
   mix-blend-mode: overlay; pointer-events: none;
 }
-
-/* ============================================================
-   Chat — pontos de digitação
-   ============================================================ */
 .ponto-digitando {
   width: 4px; height: 4px; border-radius: 50%;
   background: var(--acento-forte);

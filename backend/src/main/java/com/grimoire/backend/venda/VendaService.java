@@ -118,7 +118,12 @@ public class VendaService {
 
     @Transactional(readOnly = true)
     public List<Venda> listarFiadoEmAberto() {
-        return vendaRepository.listarPorStatusFiado(StatusFiado.PENDENTE);
+        return vendaRepository.listarPorStatusFiadoEm(List.of(
+            StatusFiado.PENDENTE,
+            StatusFiado.NOTIFICADO,
+            StatusFiado.EM_ATRASO,
+            StatusFiado.NEGATIVADO
+        ));
     }
 
     @Transactional(readOnly = true)

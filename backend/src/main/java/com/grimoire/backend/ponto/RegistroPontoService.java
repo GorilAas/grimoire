@@ -29,13 +29,7 @@ public class RegistroPontoService {
     private final RegistroPontoRepository repository;
     private final FuncionarioRepository funcionarioRepository;
     private final UsuarioRepository usuarioRepository;
-
-    /**
-     * Bate ponto do funcionário vinculado ao usuário logado.
-     * ADMIN/GERENTE podem passar um funcionarioId explícito para bater por outro.
-     * Detecta automaticamente ENTRADA ou SAÍDA.
-     */
-    public RegistroPonto bater(Long usuarioId, Long funcionarioIdOverride, String perfil) {
+public RegistroPonto bater(Long usuarioId, Long funcionarioIdOverride, String perfil) {
         Funcionario funcionario;
 
         boolean ehGestao = "ADMIN".equals(perfil) || "GERENTE".equals(perfil);
@@ -68,9 +62,7 @@ public class RegistroPontoService {
 
         return repository.save(registro);
     }
-
-    /** Ajuste manual — GERENTE/ADMIN */
-    public RegistroPonto ajustar(AjustePontoRequest dto, Long usuarioId) {
+public RegistroPonto ajustar(AjustePontoRequest dto, Long usuarioId) {
         Funcionario funcionario = funcionarioRepository.findById(dto.funcionarioId())
             .orElseThrow(() -> new RecursoNaoEncontradoException("Funcionário " + dto.funcionarioId() + " não encontrado"));
 
@@ -91,18 +83,14 @@ public class RegistroPontoService {
 
         return repository.save(registro);
     }
-
-    /** Registros do dia do funcionário */
-    @Transactional(readOnly = true)
+@Transactional(readOnly = true)
     public List<RegistroPontoResponse> listarHoje(Long funcionarioId) {
         LocalDate hoje = LocalDate.now();
         return repository.findByFuncionarioAndDia(
                 funcionarioId, hoje.atStartOfDay(), hoje.atTime(LocalTime.MAX))
             .stream().map(RegistroPontoResponse::from).toList();
     }
-
-    /** Resumo por período para um funcionário */
-    @Transactional(readOnly = true)
+@Transactional(readOnly = true)
     public List<ResumoPontoResponse> resumo(Long funcionarioId, LocalDate inicio, LocalDate fim) {
         Funcionario funcionario = funcionarioRepository.findById(funcionarioId)
             .orElseThrow(() -> new RecursoNaoEncontradoException("Funcionário " + funcionarioId + " não encontrado"));
@@ -116,9 +104,7 @@ public class RegistroPontoService {
         }
         return resultado;
     }
-
-    /** Todos os registros de todos os funcionários no período */
-    @Transactional(readOnly = true)
+@Transactional(readOnly = true)
     public List<RegistroPontoResponse> listarPorPeriodo(LocalDate inicio, LocalDate fim) {
         return repository.findAllByPeriodo(
                 inicio.atStartOfDay(), fim.atTime(LocalTime.MAX))

@@ -31,15 +31,11 @@ export default function Ponto() {
   const ehAdmin = temPermissao(['ADMIN', 'GERENTE'])
 
   const [batendo, setBatendo] = useState(false)
-  const [mensagem, setMensagem] = useState(null) // { tipo: 'ok'|'erro', texto }
-
-  // Funcionário selecionado (admin vê todos; funcionário só vê o próprio)
+  const [mensagem, setMensagem] = useState(null)
   const [funcId, setFuncId] = useState(null)
 
   const { dados: funcionarios } = useDadosApi(() => funcionariosServico.listarAtivos(), [], ehAdmin)
   const { dados: meuFuncionario } = useDadosApi(() => funcionariosServico.buscarMeuFuncionario(), [], !ehAdmin)
-
-  // Configura funcId inicial quando dados carregam
   useEffect(() => {
     if (!funcId && usuario) {
       if (ehAdmin && funcionarios?.length > 0) {
@@ -49,14 +45,10 @@ export default function Ponto() {
       }
     }
   }, [funcionarios, meuFuncionario, usuario, ehAdmin, funcId])
-
-  // Registros do dia
   const { dados: registrosHoje, recarregar: recarregarHoje } = useDadosApi(
     () => funcId ? pontoServico.hoje(funcId) : Promise.resolve({ data: [] }),
     [funcId]
   )
-
-  // Resumo da semana
   const semana = semanaAtual()
   const { dados: resumoSemana, recarregar: recarregarResumo } = useDadosApi(
     () => funcId ? pontoServico.resumo(funcId, semana.inicio, semana.fim) : Promise.resolve({ data: [] }),
@@ -65,12 +57,8 @@ export default function Ponto() {
 
   const registros = registrosHoje ?? []
   const resumo    = resumoSemana  ?? []
-
-  // Último registro do dia
   const ultimoRegistro = registros[registros.length - 1]
   const emAndamento    = ultimoRegistro?.tipo === 'ENTRADA'
-
-  // Saldo total da semana
   const saldoSemana = resumo.reduce((acc, d) => acc + (d.saldoDecimal ?? 0), 0)
 
   async function baterPonto() {
@@ -100,7 +88,7 @@ export default function Ponto() {
         subtitulo={new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
       />
 
-      {/* Seletor de funcionário (só admin/gerente) */}
+
       {ehAdmin && funcionarios?.length > 0 && (
         <div className="flex items-center gap-3">
           <label className="text-[12px] font-medium text-[var(--texto-2)]">Funcionário:</label>
@@ -118,7 +106,7 @@ export default function Ponto() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        {/* Bater ponto */}
+
         <Cartao className="p-6 flex flex-col items-center gap-4">
           <div
             className={[
@@ -173,7 +161,7 @@ export default function Ponto() {
           )}
         </Cartao>
 
-        {/* Registros de hoje */}
+
         <Cartao className="p-5 flex flex-col gap-3">
           <h3 className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-[var(--texto-3)]">
             Registros de hoje
@@ -206,13 +194,13 @@ export default function Ponto() {
           )}
         </Cartao>
 
-        {/* Saldo da semana */}
+
         <Cartao className="p-5 flex flex-col gap-3">
           <h3 className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-[var(--texto-3)]">
             Semana atual
           </h3>
 
-          {/* Saldo total */}
+
           <div className="flex flex-col items-center gap-1 py-2">
             <span className="text-[11px] text-[var(--texto-3)]">Saldo acumulado</span>
             <span className={[
@@ -227,7 +215,7 @@ export default function Ponto() {
             </span>
           </div>
 
-          {/* Dias da semana */}
+
           <div className="flex flex-col gap-1.5">
             {resumo.map(d => (
               <div key={d.data} className="flex items-center gap-2 text-[12px]">

@@ -11,7 +11,6 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Injeta o token JWT em todas as requisições
 api.interceptors.request.use(config => {
   const url = String(config.url || '')
   if (url.includes('/api/auth/')) return config
@@ -23,7 +22,6 @@ api.interceptors.request.use(config => {
   return config
 })
 
-// Trata 401 (sessão expirada) e 403 (sem permissão)
 api.interceptors.response.use(
   res => res,
   err => {
@@ -32,11 +30,12 @@ api.interceptors.response.use(
       localStorage.removeItem('fresquim_usuario')
       window.location.href = '/login'
     }
+
     if (err.response?.status === 403) {
-      // Garante mensagem amigável nos componentes
       err.mensagemAmigavel = 'Você não tem permissão para realizar esta ação.'
       window.dispatchEvent(new CustomEvent('fresquim:forbidden', { detail: err }))
     }
+
     return Promise.reject(err)
   }
 )

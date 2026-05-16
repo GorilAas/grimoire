@@ -26,9 +26,7 @@ public class RegistroPontoController {
     public record BaterPontoRequest(
         Long funcionarioId
     ) {}
-
-    /** POST /api/ponto/bater — usuário bate o próprio ponto */
-    @PostMapping("/bater")
+@PostMapping("/bater")
     public ResponseEntity<RegistroPontoResponse> bater(@RequestBody BaterPontoRequest dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long usuarioId = (Long) auth.getPrincipal();
@@ -42,32 +40,24 @@ public class RegistroPontoController {
         return ResponseEntity.created(URI.create("/api/ponto/" + r.getId()))
             .body(RegistroPontoResponse.from(r));
     }
-
-    /** GET /api/ponto/hoje/{funcionarioId} */
-    @GetMapping("/hoje/{funcionarioId}")
+@GetMapping("/hoje/{funcionarioId}")
     public List<RegistroPontoResponse> hoje(@PathVariable Long funcionarioId) {
         return service.listarHoje(funcionarioId);
     }
-
-    /** GET /api/ponto/resumo/{funcionarioId}?inicio=&fim= */
-    @GetMapping("/resumo/{funcionarioId}")
+@GetMapping("/resumo/{funcionarioId}")
     public List<ResumoPontoResponse> resumo(
             @PathVariable Long funcionarioId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
         return service.resumo(funcionarioId, inicio, fim);
     }
-
-    /** GET /api/ponto/periodo?inicio=&fim= — GERENTE/ADMIN */
-    @GetMapping("/periodo")
+@GetMapping("/periodo")
     public List<RegistroPontoResponse> periodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
         return service.listarPorPeriodo(inicio, fim);
     }
-
-    /** POST /api/ponto/ajuste — GERENTE/ADMIN */
-    @PostMapping("/ajuste")
+@PostMapping("/ajuste")
     public ResponseEntity<RegistroPontoResponse> ajustar(@Valid @RequestBody AjustePontoRequest dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long usuarioId = (Long) auth.getPrincipal();

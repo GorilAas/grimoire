@@ -45,7 +45,7 @@ export default function ModalComprasCliente({ cliente, onFechar }) {
         className="w-full max-w-[600px] rounded-[18px] border border-[var(--linha-suave)] shadow-[var(--sombra-md)] flex flex-col max-h-[85vh] overflow-hidden"
         style={{ background: 'var(--fundo-1)' }}
       >
-        {/* Cabeçalho */}
+
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--linha-suave)] shrink-0">
           <div className="flex items-center gap-2.5">
             <ShoppingBag size={16} className="text-[var(--acento)]" />
@@ -64,7 +64,7 @@ export default function ModalComprasCliente({ cliente, onFechar }) {
           </button>
         </div>
 
-        {/* Resumo */}
+
         <div className="px-6 py-3 border-b border-[var(--linha-suave)] shrink-0 flex gap-6">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--texto-3)]">Total gasto</p>
@@ -85,7 +85,7 @@ export default function ModalComprasCliente({ cliente, onFechar }) {
           )}
         </div>
 
-        {/* Lista */}
+
         <div className="overflow-y-auto flex-1">
           {carregando && (
             <div className="p-5">

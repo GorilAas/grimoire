@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { X, UserRound } from 'lucide-react'
+import { RotateCcw, UserRound, UserX, X } from 'lucide-react'
 import Botao from '@/componentes/ui/Botao'
 import clientesServico from '@/servicos/clientesServico'
 import { mascaraInputCpf, mascaraInputTelefone } from '@/utilitarios/formatadores'
@@ -15,6 +15,7 @@ const FORMULARIO_VAZIO = {
 export default function ModalCliente({ aberto, cliente, onFechar, onSalvo }) {
   const [form, setForm] = useState(FORMULARIO_VAZIO)
   const [salvando, setSalvando] = useState(false)
+  const [alterandoStatus, setAlterandoStatus] = useState(false)
   const [erro, setErro] = useState('')
 
   const editando = Boolean(cliente)
@@ -63,6 +64,30 @@ export default function ModalCliente({ aberto, cliente, onFechar, onSalvo }) {
       setErro(err?.response?.data?.mensagem ?? 'Erro ao salvar cliente.')
     } finally {
       setSalvando(false)
+    }
+  }
+
+  async function alterarStatus() {
+    if (!editando || alterandoStatus) return
+
+    setErro('')
+
+    if (cliente.ativo) {
+      const confirmou = window.confirm(`Deseja realmente inativar o cliente "${cliente.nome}"?`)
+      if (!confirmou) return
+    }
+
+    setAlterandoStatus(true)
+    try {
+      cliente.ativo
+        ? await clientesServico.inativar(cliente.id)
+        : await clientesServico.reativar(cliente.id)
+      onSalvo?.()
+      onFechar()
+    } catch (err) {
+      setErro(err?.response?.data?.mensagem ?? 'Erro ao alterar status do cliente.')
+    } finally {
+      setAlterandoStatus(false)
     }
   }
 
@@ -154,11 +179,36 @@ export default function ModalCliente({ aberto, cliente, onFechar, onSalvo }) {
             </p>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Botao variante="fantasma" type="button" onClick={onFechar} disabled={salvando}>Cancelar</Botao>
-            <Botao variante="primario" type="submit" disabled={salvando}>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            {editando ? (
+              <button
+                type="button"
+                onClick={alterarStatus}
+                disabled={alterandoStatus || salvando}
+                className={[
+                  'h-9 px-3 inline-flex items-center justify-center gap-2 rounded-[8px] border text-[12.5px] font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+                  cliente.ativo
+                    ? 'border-[var(--negativo)]/35 text-[var(--negativo)] hover:bg-[var(--negativo)]/10'
+                    : 'border-[var(--acento)]/40 text-[var(--acento)] hover:bg-[var(--acento-suave)]',
+                ].join(' ')}
+              >
+                {cliente.ativo ? <UserX size={13} /> : <RotateCcw size={13} />}
+                {alterandoStatus
+                  ? 'Alterando...'
+                  : cliente.ativo
+                    ? 'Inativar cliente'
+                    : 'Reativar cliente'}
+              </button>
+            ) : (
+              <span />
+            )}
+
+            <div className="flex justify-end gap-2">
+            <Botao variante="fantasma" type="button" onClick={onFechar} disabled={salvando || alterandoStatus}>Cancelar</Botao>
+            <Botao variante="primario" type="submit" disabled={salvando || alterandoStatus}>
               {salvando ? 'Salvando...' : editando ? 'Salvar alterações' : 'Cadastrar cliente'}
             </Botao>
+            </div>
           </div>
         </form>
       </div>

@@ -52,7 +52,7 @@ frontend:
 
 jwt:
   secret: ${JWT_SECRET:PaoFresQUIM-chave-secreta-super-segura-minimo-256bits-aqui!}
-  expiration-ms: 86400000  # 24 horas
+  expiration-ms: 86400000
 
 admin:
   senha: ${ADMIN_PASSWORD:FresQUIM@2025!}
@@ -60,6 +60,10 @@ admin:
 groq:
   api-key: ${GROQ_API_KEY}
   modelo: llama-3.3-70b-versatile
+
+schedule:
+  buscar-fiados:
+    cron: "${SCHEDULE_BUSCAR_FIADOS_CRON:0 0 9 * * *}"
 
 ---
 spring:
@@ -72,6 +76,10 @@ spring:
     password: ${SUPABASE_PASSWORD:SUA_SENHA_AQUI}
   groq:
     api-key: ${GROQ_API_KEY:SUA_CHAVE_GROQ_AQUI}
+
+schedule:
+  buscar-fiados:
+    cron: "${SCHEDULE_BUSCAR_FIADOS_CRON:*/30 * * * * *}"
 
 ---
 spring:
@@ -91,8 +99,3 @@ spring:
       hibernate:
         connection:
           provider_disables_autocommit: true
-
-schedule:
-  buscar-fiados:
-    cron: "*/30 * * * * *"
-

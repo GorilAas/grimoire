@@ -80,7 +80,7 @@ export default function Funcionarios() {
         }
       />
 
-      {/* Filtro por cargo */}
+
       <div className="flex gap-2 flex-wrap">
         {[{ rotulo: 'Todos', valor: null }, ...((cargos ?? []).map(item => ({ rotulo: item.nome, valor: item.nome })))].map(f => (
           <button
@@ -125,7 +125,7 @@ export default function Funcionarios() {
                   {f.ativo === false && <Chip variante="mudo">Inativo</Chip>}
                 </div>
 
-                {/* Detalhes extras */}
+
                 <div className="mt-2 flex flex-col gap-0.5">
                   {f.telefone && (
                     <p className="text-[11.5px] text-[var(--texto-3)] flex items-center gap-1">
@@ -142,7 +142,7 @@ export default function Funcionarios() {
                 </div>
               </div>
 
-              {/* Ações */}
+
               <div className="flex flex-col gap-1 shrink-0">
                 {podeEditar && (
                   <button
